@@ -7,7 +7,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { themes } from "../static/theme";
 
-const ENDPOINT = "https://codeforces-markdown.vercel.app/";
+const ENDPOINT = "https://codeforces-gamma.vercel.app/";
 
 const Container = styled(Paper)(() => ({
   width: "100%",
