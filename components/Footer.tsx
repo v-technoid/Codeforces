@@ -11,7 +11,7 @@ const Footer = () => {
         <p className={styles.contribute}>
           Wanna contribute? Check the documentation{" "}
           <a
-            href="https://github.com/v-technoid/Codeforces_Markdown"
+            href="https://github.com/v-technoid/Codeforces"
             target="_blank"
             rel="noopener noreferrer"
             className={styles.link}
