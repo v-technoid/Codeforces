@@ -1,0 +1,7 @@
+{
+    "watch": ["pages", "components", "styles", "server", "Cards"], 
+    "ext": "js,jsx,ts,tsx,json",
+    "exec": "npm run build && npm start",
+    "delay": "500"
+  }
+  
