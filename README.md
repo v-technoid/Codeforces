@@ -1,71 +1,165 @@
-## 📊 Codeforces Markdown Card Generator
+# Coder Cards
 
-Easily generate a dynamic SVG card showing your **Codeforces stats**, including handle, rank, rating, contributions, and more – styled beautifully and embeddable in your GitHub README or personal site.
+Live cards for your GitHub profile README from 13 coding platforms: ratings, rating graphs, problems solved, a year of submissions and recent contests. Plus README extras like an animated typing intro, your tech stack, upcoming Codeforces contests and one card with all your platforms together. The cards update on their own, and the site can write your whole profile README for you.
 
-### 🚀 Features
+![Codeforces card](https://codeforces-markdown.vercel.app/api/card?username=tourist&theme=dark)
 
-* 🎨 Multiple theme support (light, abyss, ember, frost, etc.)
-* 🧠 Real-time data fetched from the Codeforces API
-* 📦 NPM-ready package for easy integration
-* 🖼️ Fully customizable SVG output
-* 📎 Ideal for GitHub READMEs and portfolios
+## Supported platforms
 
-### 🛠️ Usage
+| Platform | `platform=` | Cards | How it reads your data |
+| -------- | ----------- | ----- | ---------------------- |
+| Codeforces | `codeforces` (default) | profile, rating, solved, heatmap, contests, badge | Official API |
+| LeetCode | `leetcode` | profile, rating, solved, heatmap, contests, badge | LeetCode's public GraphQL endpoint |
+| AtCoder | `atcoder` | profile, rating, contests, badge | AtCoder's rating history JSON, plus AtCoder Problems for solved counts |
+| CodeChef | `codechef` | profile, rating, contests, badge | Public profile page |
+| GeeksforGeeks | `gfg` | profile, solved, badge | Public profile page and practice API |
+| HackerRank | `hackerrank` | profile, solved, badge | HackerRank's website JSON |
+| TopCoder | `topcoder` | profile, badge | Official members API |
+| Codewars | `codewars` | profile, solved, badge | Official API |
+| DMOJ | `dmoj` | profile, rating, badge | Official API |
+| SPOJ | `spoj` | profile, badge | Public profile page |
+| Kattis | `kattis` | profile, badge | Public profile page |
+| UVa Online Judge | `uva` | profile, heatmap, badge | uHunt API |
+| CSES | `cses` | profile, badge | Public problem set page (use your user number) |
 
-**1. Embed in GitHub README:**
+Platforms marked "public profile page" have no API, so their reader can break when the site redesigns its pages. If one stops working, run the check script below and open an issue with its output.
+
+Not included: HackerEarth, Coding Ninjas and InterviewBit only show profile data after login or through JavaScript, so a server can't read it. LeetCode China uses a separate site with different data and could be added later.
+
+## Use it
+
+Open the site, pick your platform, type your handle, choose a card and a theme, and copy the snippet. Or use **Write your whole README** to pick sections, preview them the way GitHub shows them, and copy or download a finished `README.md`.
+
+You can also write a link yourself:
 
 ```md
-![Codeforces Stats](https://codeforces-markdown.vercel.app/api/codeforces?username=YOUR_HANDLE&theme=light)
+[![My LeetCode stats](https://codeforces-markdown.vercel.app/api/card?platform=leetcode&username=YOUR_HANDLE)](https://leetcode.com/u/YOUR_HANDLE/)
 ```
 
-**2. Customizable Parameters:**
+### Cards
 
-| Parameter  | Description                     | Example          |
-| ---------- | ------------------------------- | ---------------- |
-| `username` | Your Codeforces handle          | `vishnuppriyan_` |
-| `theme`    | Card theme (light, ember, etc.) | `theme=twilight` |
+Pick one with `type`:
 
----
+| `type`     | What it shows                                                                  |
+| ---------- | ------------------------------------------------------------------------------ |
+| `stats`    | Rank, rating ring with progress to the next tier, key numbers. The default.    |
+| `rating`   | Every rated contest drawn over the colored rank bands.                         |
+| `solved`   | Problems solved, broken down by difficulty, badge or language.                 |
+| `heatmap`  | Submissions per day over the last year.                                        |
+| `contests` | Your last five rated contests with rank and rating change.                     |
+| `badge`    | A small one line badge showing your rank and rating.                           |
 
-### 📦 Coming Soon: NPM Package
+README extras, which don't need `platform` or `username`:
 
-Install and use this as a utility inside your Node.js project to generate SVG cards dynamically via:
+| `type`     | What it shows                                                                  | Its own options |
+| ---------- | ------------------------------------------------------------------------------ | --------------- |
+| `combined` | Your profile on every platform you use, as tiles in one card.                  | One handle per platform by its name, like `codeforces=you&leetcode=you`, plus `title` |
+| `typing`   | Your lines typed out one after another with a blinking cursor.                 | `lines` (separated by `;`), `color`, `size`, `width`, `speed`, `pause`, `center`, `background` |
+| `stack`    | Your languages and tools as colored chips.                                     | `items` (separated by `,`), `title` |
+| `upcoming` | The next Codeforces contests with start time, length and a countdown.          | `count` (1 to 6), `tz` (like `Asia/Kolkata`) |
+
+```md
+![All my platforms](https://codeforces-markdown.vercel.app/api/card?type=combined&codeforces=YOU&leetcode=YOU&atcoder=YOU)
+![Intro](https://codeforces-markdown.vercel.app/api/card?type=typing&lines=Hi,+I'm+Vishnu;Competitive+programmer;I+love+DP)
+```
+
+GitHub shows README images without running any scripts, so every animation here is built into the SVG image itself with CSS and SVG animation tags. That's why they play on GitHub.
+
+### Options
+
+| Option          | What it does                                                                                   | Example              |
+| --------------- | ---------------------------------------------------------------------------------------------- | -------------------- |
+| `platform`      | Which site, see the table above. Defaults to `codeforces`.                                     | `platform=atcoder`   |
+| `username`      | Your handle on that platform. `handle` also works.                                             | `username=tourist`   |
+| `type`          | Which card, see above. Defaults to `stats`.                                                    | `type=heatmap`       |
+| `theme`         | `light`, `dark`, `abyss`, `ember`, `frost`, `dusk`, `aurora`, `twilight`, `paper`.              | `theme=dark`         |
+| `hide`          | Comma separated parts to leave out. The builder on the site lists them for each card.          | `hide=country,trend` |
+| `bg_color`, `title_color`, `text_color`, `muted_color`, `border_color` | Your own colors, hex without `#`.  | `bg_color=102a43`    |
+| `hide_border`   | Removes the outline.                                                                           | `hide_border=true`   |
+| `animate`       | `false` for a still card.                                                                      | `animate=false`      |
+
+### Match GitHub light and dark mode
+
+GitHub READMEs accept a `<picture>` tag, so visitors see the card that matches their theme:
+
+```html
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://codeforces-markdown.vercel.app/api/card?username=YOUR_HANDLE&theme=dark" />
+  <img src="https://codeforces-markdown.vercel.app/api/card?username=YOUR_HANDLE" alt="My Codeforces stats" />
+</picture>
+```
+
+The builder on the site writes this for you when you tick "Match GitHub light and dark mode".
+
+Links made with earlier versions of this project, including every `/api/codeforces` link, keep working. Platform cards are cached for 30 minutes, upcoming contests for 10, and typing and stack cards for a day.
+
+## How it's built
+
+Plain HTML, CSS and JavaScript. No framework, no build step, no packages to install.
+
+* `index.html`, `css/style.css` and the files in `js/` are the website.
+* `js/lib/` holds the card drawing and the platform readers. The website and the API share it, so previews look exactly like the real cards.
+* The files in `api/` are the only server code. Vercel runs each one automatically. They're needed because GitHub has to fetch a fresh image from a server each time someone views your README.
+
+```
+index.html              The page
+css/style.css           All styles
+js/app.js               Starts the page, the platform picker and loading a handle
+js/ui/                  One file per page section: hero, ladder, builder,
+                        README generator, compare, GitHub stars, background
+js/lib/platforms/       One reader per platform, all returning the same shape
+js/lib/codeforces.js    Codeforces API calls, solved problems, streaks, activity,
+                        upcoming contests
+js/lib/cards/           One file per card, plus shared frame, helpers and params
+js/lib/options.js       Link options and custom colors
+js/lib/themes.js        Card themes
+js/lib/site.js          The site's name
+js/lib/sample.js        Sample data shown before anyone searches
+js/lib/url.js           Builds card links
+api/card.js             The card image endpoint for every platform
+api/codeforces.js       The original endpoint name, kept for old links
+api/profile.js          JSON platform stats for previews
+api/stats.js            JSON Codeforces stats for previews
+api/contests.js         JSON upcoming contests for previews
+scripts/check.js        Checks every platform reader against the real sites
+icons/github.svg        Repository icon used on the site (see below)
+server.js               Tiny local server for trying it on your computer
+```
+
+## Run it locally
+
+You only need Node.js 18 or newer. There's nothing to install.
 
 ```bash
-npm install codeforces-markdown-card
+node server.js
 ```
 
-Then:
+Then open http://localhost:3000. A card lives at http://localhost:3000/api/card?username=tourist. Use `PORT=4000 node server.js` for another port.
 
-```ts
-import { getSuccessSvg } from 'codeforces-markdown-card';
+Platforms other than Codeforces need the server, because their sites don't let a web page read them directly.
 
-const svg = getSuccessSvg({ stats, username, theme });
+### Check the platform readers
+
+```bash
+node scripts/check.js codechef=YOUR_HANDLE gfg=YOUR_HANDLE spoj=YOUR_HANDLE
 ```
 
----
+With no arguments it checks a few well known public profiles. For each platform it prints what it read, or the error.
 
-### 🌐 Live Demo
+## Deploy on Vercel
 
-See it in action:
-🔗 [https://codeforces-markdown.vercel.app](https://codeforces-markdown.vercel.app)
+Push to GitHub and import the repo on Vercel. In the project settings, set **Framework Preset** to **Other** and leave the build command empty. If you're moving an existing Vercel project away from Next.js, change that setting before your next deploy.
 
----
+## The GitHub icon
 
-### 🤝 Contributing
+The site shows a simple repository icon from `icons/github.svg`. If you'd like GitHub's own mark there instead, download it from [github.com/logos](https://github.com/logos) and save it over that file as a single color SVG. The site colors it automatically.
 
-Contributions are welcome! Feel free to submit issues, add themes, or improve the rendering logic.
+## Contributing
 
----
+Issues and pull requests are welcome.
 
-Let me know if you want me to tailor the README further based on:
+* **Add a platform:** write a reader in `js/lib/platforms/` that returns the shared shape described in `js/lib/platforms/index.js`, add it to `PLATFORMS` and list its cards in `SUPPORT`. It appears in the picker, the builder and the combined card automatically.
+* **Add a theme:** add an entry to `js/lib/themes.js`.
+* **Add a card:** add a file in `js/lib/cards/` and register it in `js/lib/cards/index.js`. It appears in the builder automatically, including inputs for any `params` it declares.
 
-* How to run it locally
-* API routes usage
-* Tech stack badges (Next.js, TypeScript, TailwindCSS)
-
-Would you also like a shield badge like this for the top?
-
-```md
-![npm](https://img.shields.io/npm/v/codeforces-markdown-card)
-```
+© Vishnuppriyan PL. Not affiliated with GitHub or any of the coding platforms listed.

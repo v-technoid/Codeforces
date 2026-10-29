@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Coder Cards for your GitHub README</title>
+    <meta
+      name="description"
+      content="Live cards for your GitHub profile README from Codeforces, LeetCode, AtCoder, CodeChef, GeeksforGeeks, HackerRank and more: ratings, rating graphs, problems solved and heatmaps, plus a typing intro, tech stack and upcoming contests. Or generate the whole README."
+    />
+    <meta name="theme-color" content="#f3f4f7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#121624" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <script type="module" src="js/app.js"></script>
+  </head>
+  <body>
+    <!-- Animated background behind the hero, see js/ui/background.js -->
+    <canvas class="hero-bg" id="hero-bg" aria-hidden="true"></canvas>
+
+    <div class="page">
+      <header class="site-header">
+        <a href="./" class="brand" id="brand">
+          <img src="favicon.svg" alt="" width="26" height="26" />
+          <span>Coder Cards</span>
+        </a>
+        <nav class="nav" aria-label="Sections">
+          <a href="#build">Cards</a>
+          <a href="#generator">README generator</a>
+          <a href="#compare">Compare</a>
+          <a href="#options">Link options</a>
+        </nav>
+        <a class="gh-button" href="https://github.com/v-technoid/Codeforces" target="_blank" rel="noopener noreferrer">
+          <span class="icon-gh" aria-hidden="true"></span>
+          <span class="gh-button-text"><span class="gh-button-long">Star on </span>GitHub</span>
+          <span class="gh-button-count" data-repo-stat="stars" hidden></span>
+        </a>
+      </header>
+
+      <main>
+        <!-- Hero -->
+        <section class="hero">
+          <div class="hero-copy">
+            <h1 class="hero-title">Your coding stats, live on your GitHub profile</h1>
+            <p class="hero-lede">
+              Cards that update on their own: ratings, rating graphs, problems solved, a year of submissions and
+              recent contests from 13 coding platforms. Add a typing intro, your tech stack and upcoming contests, or
+              let the generator write your whole README.
+            </p>
+            <form class="hero-form" id="hero-form" novalidate>
+              <label for="platform" class="sr-only">Platform</label>
+              <select id="platform" class="input input-lg select platform-select"></select>
+              <label for="handle" class="sr-only">Your handle</label>
+              <input
+                id="handle"
+                class="input input-lg"
+                placeholder="Your handle"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+                maxlength="24"
+                aria-describedby="handle-error"
+              />
+              <button class="button button-primary button-lg" type="submit" id="handle-submit">Make my cards</button>
+            </form>
+            <p id="handle-error" class="form-error" role="alert"></p>
+            <div class="platform-strip">
+              <p class="platform-strip-label">Works with</p>
+              <div class="platform-chips" id="platform-chips"></div>
+            </div>
+          </div>
+
+          <div class="hero-stage" aria-hidden="true">
+            <div class="hero-stack" id="hero-stack"></div>
+          </div>
+        </section>
+
+        <!-- Rank ladder -->
+        <section class="section" id="standing" aria-labelledby="standing-heading">
+          <h2 id="standing-heading" class="h2">Every rank has its color</h2>
+          <div id="standing-ladder"></div>
+          <p class="summary" id="standing-summary" aria-live="polite">
+            Your cards use the color of your Codeforces rank, so people can read your level at a glance.
+          </p>
+        </section>
+
+        <!-- Builder -->
+        <section class="section" id="build" aria-labelledby="builder-heading">
+          <div class="section-head">
+            <h2 id="builder-heading" class="h2">Build your card</h2>
+            <p class="note" id="builder-note">Codeforces cards show sample data until you enter a handle.</p>
+          </div>
+
+          <div class="types" id="types"></div>
+
+          <div class="panel builder-grid">
+            <div class="preview-area" id="preview-area"></div>
+
+            <div class="controls" id="controls">
+              <fieldset class="group" id="params-group" hidden>
+                <legend class="legend">Card content</legend>
+                <div class="params" id="params"></div>
+              </fieldset>
+
+              <div class="control-stack" id="themed-controls">
+                <fieldset class="group">
+                  <legend class="legend" id="theme-legend">Theme</legend>
+                  <div class="chips" role="radiogroup" id="theme-chips"></div>
+                </fieldset>
+
+                <label class="check">
+                  <input type="checkbox" id="auto-mode" />
+                  <span>Match GitHub light and dark mode</span>
+                </label>
+
+                <fieldset class="group" id="dark-group" hidden>
+                  <legend class="legend">Theme in dark mode</legend>
+                  <div class="chips" role="radiogroup" id="dark-chips"></div>
+                </fieldset>
+              </div>
+
+              <fieldset class="group" id="fields-group">
+                <legend class="legend">Show on the card</legend>
+                <div class="fields" id="fields"></div>
+              </fieldset>
+
+              <details class="details" id="colors-details">
+                <summary>Custom colors</summary>
+                <div class="colors" id="colors"></div>
+                <button type="button" class="link-button" id="reset-colors" hidden>Reset colors</button>
+                <p class="small" id="colors-note" hidden>Custom colors apply to both the light and dark versions.</p>
+              </details>
+
+              <p class="small" id="card-note" hidden></p>
+            </div>
+
+            <div class="embed-area">
+              <div class="embed">
+                <div class="embed-bar">
+                  <div class="embed-tabs" role="tablist" aria-label="Snippet format" id="embed-tabs"></div>
+                  <button class="copy-button" type="button" id="copy" disabled>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    <span>Copy</span>
+                  </button>
+                </div>
+                <pre class="embed-code" role="tabpanel"><code id="embed-code"></code></pre>
+                <p class="embed-hint" id="embed-hint" aria-live="polite"></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- README generator -->
+        <section class="section" id="generator" aria-labelledby="generator-heading">
+          <div class="section-head">
+            <h2 id="generator-heading" class="h2">Write your whole README</h2>
+            <p class="note">Pick what goes on your profile. The preview shows it the way GitHub will.</p>
+          </div>
+
+          <div class="gen-grid">
+            <div class="panel gen-controls">
+              <fieldset class="group">
+                <legend class="legend">Sections</legend>
+                <div class="gen-sections" id="gen-sections"></div>
+              </fieldset>
+
+              <fieldset class="group">
+                <legend class="legend" id="gen-theme-legend">Theme</legend>
+                <div class="chips" role="radiogroup" id="gen-theme-chips"></div>
+              </fieldset>
+              <label class="check">
+                <input type="checkbox" id="gen-auto" />
+                <span>Match GitHub light and dark mode</span>
+              </label>
+              <fieldset class="group" id="gen-dark-group">
+                <legend class="legend">Theme in dark mode</legend>
+                <div class="chips" role="radiogroup" id="gen-dark-chips"></div>
+              </fieldset>
+              <label class="check">
+                <input type="checkbox" id="gen-pairs" />
+                <span>Two platform cards per row</span>
+              </label>
+            </div>
+
+            <div class="gen-output">
+              <div class="gen-bar">
+                <div class="embed-tabs" role="tablist" aria-label="View" id="gen-tabs">
+                  <button type="button" role="tab" class="embed-tab" data-tab="preview">Preview</button>
+                  <button type="button" role="tab" class="embed-tab" data-tab="markdown">README.md</button>
+                </div>
+                <div class="segmented" id="gen-scheme" aria-label="Preview in">
+                  <button type="button" data-scheme="light">Light</button>
+                  <button type="button" data-scheme="dark">Dark</button>
+                </div>
+                <div class="gen-actions">
+                  <button class="copy-button" type="button" id="gen-copy">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    <span>Copy README</span>
+                  </button>
+                  <button class="copy-button" type="button" id="gen-download">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+                    <span>Download</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="gh-frame" id="gen-preview">
+                <div class="gh-file">
+                  <span class="icon-gh" aria-hidden="true"></span>
+                  <span>README.md</span>
+                </div>
+                <div class="gh-body" id="gen-preview-body"></div>
+              </div>
+              <div class="gen-code-wrap" id="gen-code-wrap" hidden>
+                <pre class="embed-code gen-code"><code id="gen-code"></code></pre>
+              </div>
+              <p class="small gen-hint" id="gen-hint"></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Compare -->
+        <section class="section" id="compare" aria-labelledby="compare-heading">
+          <h2 id="compare-heading" class="h2">Compare two Codeforces handles</h2>
+          <p class="note">See where you and a friend stand on Codeforces, side by side.</p>
+          <form class="compare-form" id="compare-form" novalidate>
+            <label class="sr-only" for="cmp-a">First handle</label>
+            <input id="cmp-a" class="input" placeholder="First handle" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="24" />
+            <span class="compare-and" aria-hidden="true">and</span>
+            <label class="sr-only" for="cmp-b">Second handle</label>
+            <input id="cmp-b" class="input" placeholder="Second handle" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="24" />
+            <button class="button button-ink" type="submit" id="cmp-submit">Compare</button>
+          </form>
+          <p class="form-error" id="cmp-error" role="alert"></p>
+          <div id="compare-result"></div>
+        </section>
+
+        <!-- Link options -->
+        <section class="section" id="options" aria-labelledby="options-heading">
+          <h2 id="options-heading" class="h2">Link options</h2>
+          <p class="note">
+            Every card is a plain image link, so you can also write it by hand. Start from
+            <code>/api/card?platform=leetcode&amp;username=YOUR_HANDLE</code> and add any of these. Older
+            <code>/api/codeforces</code> links keep working.
+          </p>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Option</th>
+                  <th scope="col">What it does</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>platform</code></td>
+                  <td>
+                    Which site: <span id="opt-platforms"></span>. Defaults to codeforces.
+                    <span class="example">Example: <code>platform=atcoder</code></span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>username</code></td>
+                  <td>Your handle on that platform. Not needed for the README extras.</td>
+                </tr>
+                <tr>
+                  <td><code>type</code></td>
+                  <td>
+                    Which card: <span id="opt-types"></span>. Defaults to stats.
+                    <span class="example">Example: <code>type=heatmap</code></span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>theme</code></td>
+                  <td>
+                    One of <span id="opt-themes"></span>. Defaults to light.
+                    <span class="example">Example: <code>theme=dark</code></span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>hide</code></td>
+                  <td>
+                    Comma separated parts to leave out. Each card lists what it has in the builder above.
+                    <span class="example">Example: <code>hide=country,trend</code></span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>bg_color</code> and friends</td>
+                  <td>
+                    Your own colors as hex without the #: bg_color, title_color, text_color, muted_color,
+                    border_color.
+                    <span class="example">Example: <code>bg_color=102a43&amp;text_color=f0f4f8</code></span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>hide_border</code></td>
+                  <td>Removes the outline around the card.</td>
+                </tr>
+                <tr>
+                  <td><code>animate</code></td>
+                  <td>Set to false for a still card with no animation.</td>
+                </tr>
+                <tr>
+                  <td><code>lines</code></td>
+                  <td>
+                    Typing intro only. The lines to type, separated by semicolons. Also <code>color</code>,
+                    <code>size</code>, <code>width</code>, <code>speed</code>, <code>pause</code>, <code>center</code>
+                    and <code>background</code>.
+                    <span class="example">Example: <code>type=typing&amp;lines=Hi, I'm Vishnu;I love DP</code></span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>items</code></td>
+                  <td>
+                    Tech stack only. Your languages and tools, separated by commas. Also <code>title</code>.
+                    <span class="example">Example: <code>type=stack&amp;items=C++,Python,Git</code></span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>type=combined</code></td>
+                  <td>
+                    The all platforms card. Give one handle per platform by its name, plus an optional
+                    <code>title</code>.
+                    <span class="example">Example: <code>type=combined&amp;codeforces=you&amp;leetcode=you&amp;atcoder=you</code></span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>count</code> and <code>tz</code></td>
+                  <td>
+                    Upcoming contests only. How many to list, and the time zone for their start times.
+                    <span class="example">Example: <code>type=upcoming&amp;count=3&amp;tz=Asia/Kolkata</code></span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="note">
+            Codeforces cards refresh every 30 minutes and upcoming contests every 10, so new results show up soon
+            after they happen. Links made with earlier versions of this project still work.
+          </p>
+        </section>
+
+        <!-- Star call to action -->
+        <section class="star-band" aria-labelledby="star-heading">
+          <div class="star-copy">
+            <h2 id="star-heading" class="star-title">Free and open source</h2>
+            <p class="star-text">
+              If these cards made your profile better, a star on GitHub helps other programmers find them. Ideas
+              and fixes are welcome too.
+            </p>
+          </div>
+          <div class="star-actions">
+            <a class="star-big" href="https://github.com/v-technoid/Codeforces" target="_blank" rel="noopener noreferrer">
+              <svg class="star-icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.7 6.3.9-4.55 4.43 1.07 6.27L12 17.15 6.38 20.1l1.07-6.27L2.9 9.4l6.3-.9z" fill="currentColor"/></svg>
+              <span>Star the repo</span>
+              <span class="star-count" data-repo-stat="stars" hidden></span>
+            </a>
+            <p class="star-meta">
+              <span><span data-repo-stat="forks" hidden></span> <span data-repo-label="forks" data-one="fork" data-many="forks"></span></span>
+              <a href="https://github.com/v-technoid/Codeforces/issues/new" target="_blank" rel="noopener noreferrer">Report a bug or ask for a feature</a>
+            </p>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="footer-brand">
+          <a href="./" class="brand">
+            <img src="favicon.svg" alt="" width="24" height="24" />
+            <span>Coder Cards</span>
+          </a>
+          <p class="footer-text">Live coding stats and README extras for your GitHub profile, from 13 platforms.</p>
+        </div>
+        <nav class="footer-links" aria-label="Site">
+          <p class="footer-heading">Site</p>
+          <a href="#build">Cards</a>
+          <a href="#generator">README generator</a>
+          <a href="#compare">Compare</a>
+          <a href="#options">Link options</a>
+        </nav>
+        <nav class="footer-links" aria-label="Project">
+          <p class="footer-heading">Project</p>
+          <a class="footer-gh" href="https://github.com/v-technoid/Codeforces" target="_blank" rel="noopener noreferrer">
+            <span class="icon-gh" aria-hidden="true"></span>Source on GitHub
+          </a>
+          <a href="https://github.com/v-technoid/Codeforces/issues" target="_blank" rel="noopener noreferrer">Issues</a>
+          <a href="https://github.com/v-technoid/Codeforces/issues/new" target="_blank" rel="noopener noreferrer">Report a broken platform</a>
+        </nav>
+        <div class="footer-bottom">
+          <p>&copy; <span data-year>2026</span> Vishnuppriyan PL. All rights reserved.</p>
+          <p>Not affiliated with GitHub or any of the coding platforms shown.</p>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
