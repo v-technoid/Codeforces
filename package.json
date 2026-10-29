@@ -1,13 +1,13 @@
 {
-  "name": "codeforces-card",
+  "name": "coder-cards",
   "version": "3.0.0",
   "private": true,
-  "description": "Cards that show your Codeforces rating, rating graph, problems solved, heatmap and recent contests in a GitHub README.",
+  "description": "Live cards for your GitHub profile README from 13 coding platforms.",
   "type": "module",
   "scripts": {
     "start": "node server.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": "22.x"
   }
 }

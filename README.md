@@ -148,7 +148,7 @@ With no arguments it checks a few well known public profiles. For each platform 
 
 ## Deploy on Vercel
 
-Push to GitHub and import the repo on Vercel. In the project settings, set **Framework Preset** to **Other** and leave the build command empty. If you're moving an existing Vercel project away from Next.js, change that setting before your next deploy.
+Push to GitHub and import the repo on Vercel. There's nothing to configure: `vercel.json` tells Vercel this is a plain site with no framework and nothing to install or build, which also takes care of projects that used to be set up for Next.js.
 
 ## The GitHub icon
 
