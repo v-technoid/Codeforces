@@ -11,6 +11,8 @@ import { renderGenerator, setupGenerator } from "./ui/generator.js";
 import { loadRepoStats } from "./ui/github.js";
 import { renderHero } from "./ui/hero.js";
 import { renderStanding } from "./ui/ladder.js";
+import { setupChrome } from "./ui/header.js";
+import { setupTheme } from "./ui/theme.js";
 
 /* ---------- Loading a handle ---------- */
 
@@ -120,7 +122,7 @@ $("brand").addEventListener("click", (e) => {
 });
 
 $("opt-platforms").textContent = PLATFORMS.map((p) => p.id).join(", ");
-$("opt-types").textContent = CARDS.map((c) => c.type).join(", ");
+$("opt-types").textContent = CARDS.filter((c) => c.group !== "hidden").map((c) => c.type).join(", ");
 $("opt-themes").textContent = themeList.map((t) => t.id).join(", ");
 for (const el of document.querySelectorAll("[data-year]")) el.textContent = String(new Date().getFullYear());
 
@@ -159,6 +161,10 @@ $("hero-form").addEventListener("submit", (e) => {
   load($("handle").value);
 });
 
+setupTheme();
+setupChrome();
+// The rank ladder picks its colors for the current theme, so redraw on a switch.
+window.addEventListener("themechange", () => renderStanding());
 setupBuilder();
 setupGenerator();
 setupCompare();

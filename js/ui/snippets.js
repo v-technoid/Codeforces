@@ -1,5 +1,6 @@
 // Builds the Markdown and HTML that people paste into a README.
 import { getCard } from "../lib/cards/index.js";
+import { SOCIALS } from "../lib/cards/social.js";
 import { getPlatform } from "../lib/platforms/index.js";
 import { cardUrl } from "../lib/url.js";
 import { ORIGIN } from "./core.js";
@@ -23,6 +24,8 @@ export function cardAlt(type, handle, params, platformId = "codeforces") {
   if (type === "typing") return params?.lines?.join(". ") ?? "Typing intro";
   if (type === "stack") return params?.title || "Tech stack";
   if (type === "upcoming") return "Upcoming Codeforces contests";
+  if (type === "social") return params?.label || SOCIALS[params?.site]?.label || "Link";
+  if (type === "banner") return [params?.title, params?.subtitle].filter(Boolean).join(". ") || "Banner";
   return `${handle} on ${site}${card.type === "stats" ? "" : `, ${card.label.toLowerCase()}`}`;
 }
 

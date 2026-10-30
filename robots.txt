@@ -1,0 +1,7 @@
+# Coder Stats Card
+User-agent: *
+Allow: /
+# Card images are made on demand for GitHub READMEs; crawling them only uses up function time.
+Disallow: /api/
+
+Sitemap: https://coderstatscard.vercel.app/sitemap.xml

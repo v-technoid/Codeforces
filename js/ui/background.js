@@ -14,7 +14,6 @@ export function startBackground(canvas) {
   // Older browsers without rounded rectangles get square ones.
   const square = (x, y) => (ctx.roundRect ? ctx.roundRect(x, y, CELL, CELL, 3) : ctx.rect(x, y, CELL, CELL));
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const dark = window.matchMedia("(prefers-color-scheme: dark)");
 
   let w = 0;
   let h = 0;
@@ -151,7 +150,8 @@ export function startBackground(canvas) {
   }).observe(canvas);
   document.addEventListener("visibilitychange", update);
   reduce.addEventListener?.("change", update);
-  dark.addEventListener?.("change", () => {
+  // The page's light and dark switch changes the square colors.
+  window.addEventListener("themechange", () => {
     readColors();
     draw(performance.now());
   });

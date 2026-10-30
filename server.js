@@ -22,10 +22,12 @@ const TYPES = {
   ".png": "image/png",
   ".ico": "image/x-icon",
   ".txt": "text/plain; charset=utf-8",
+  ".xml": "application/xml; charset=utf-8",
+  ".webmanifest": "application/manifest+json; charset=utf-8",
 };
 
 // Files that are part of the project but shouldn't be served as pages.
-const PRIVATE = new Set(["server.js", "package.json", ".git", "api", "node_modules"]);
+const PRIVATE = new Set(["server.js", "package.json", ".git", "api", "node_modules", "scripts", "vercel.json"]);
 
 const API = {
   "/api/card": () => import("./api/card.js"),
@@ -75,7 +77,8 @@ const server = createServer(async (req, res) => {
         res.end(KILL_SWITCH);
         return;
       }
-      res.writeHead(404, { "Content-Type": "text/plain" }).end("Not found");
+      // Unknown pages get the site's 404 page, the same as on Vercel.
+      res.writeHead(404, { "Content-Type": TYPES[".html"] }).end(await readFile(join(ROOT, "404.html")).catch(() => "Not found"));
       return;
     }
     res.writeHead(200, {
@@ -106,7 +109,7 @@ server.on("error", (err) => {
 
 server.on("listening", () => {
   console.log("");
-  console.log(`  Codeforces Card is running. Open this address:`);
+  console.log(`  Coder Stats Card is running. Open this address:`);
   console.log(`  http://localhost:${port}`);
   console.log("");
   if (port !== PORT) {

@@ -2,7 +2,7 @@
 // in-memory cache, one error type, and helpers for reading HTML pages.
 
 const TIMEOUT_MS = 9000;
-const USER_AGENT = "Mozilla/5.0 (compatible; CoderCards/3.0; +https://github.com/v-technoid/Codeforces)";
+const USER_AGENT = "Mozilla/5.0 (compatible; CoderStatsCard/3.1; +https://github.com/v-technoid/Codeforces)";
 
 /**
  * kind:

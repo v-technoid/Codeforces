@@ -2,6 +2,7 @@
 import { getCardStats, getUpcomingContests } from "../lib/codeforces.js";
 import { getPlatform, PLATFORMS } from "../lib/platforms/index.js";
 import { makeSample, samplePlatformStats, sampleUpcoming } from "../lib/sample.js";
+import { SITE_URL } from "../lib/site.js";
 import { themeList } from "../lib/themes.js";
 
 export const $ = (id) => document.getElementById(id);
@@ -18,8 +19,9 @@ export const toDataUri = (svg) => `data:image/svg+xml;charset=utf-8,${encodeURIC
 
 export const cleanHandle = (value) => value.trim().replace(/^@/, "");
 
-// When the page is opened straight from a file, there is no site address to put in links yet.
-export const ORIGIN = location.protocol === "file:" ? "https://your-site.vercel.app" : location.origin;
+// Links in snippets always point at the public site, so a README made on a
+// preview deployment or on localhost still works after you paste it.
+export const ORIGIN = SITE_URL;
 
 export const REPO = { owner: "v-technoid", name: "Codeforces" };
 export const REPO_URL = `https://github.com/${REPO.owner}/${REPO.name}`;

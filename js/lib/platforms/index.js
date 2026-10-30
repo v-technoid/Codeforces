@@ -49,8 +49,8 @@ export function colorFor(platform, stats, dark) {
 
 // Which cards each platform can fill, given the data it shares.
 const SUPPORT = {
-  codeforces: ["stats", "rating", "solved", "heatmap", "contests", "badge"],
-  leetcode: ["stats", "rating", "solved", "heatmap", "contests", "badge"],
+  codeforces: ["stats", "rating", "solved", "heatmap", "streak", "contests", "badge"],
+  leetcode: ["stats", "rating", "solved", "heatmap", "streak", "contests", "badge"],
   atcoder: ["stats", "rating", "contests", "badge"],
   codechef: ["stats", "rating", "contests", "badge"],
   gfg: ["stats", "solved", "badge"],
@@ -60,7 +60,7 @@ const SUPPORT = {
   dmoj: ["stats", "rating", "badge"],
   spoj: ["stats", "badge"],
   kattis: ["stats", "badge"],
-  uva: ["stats", "heatmap", "badge"],
+  uva: ["stats", "heatmap", "streak", "badge"],
   cses: ["stats", "badge"],
 };
 

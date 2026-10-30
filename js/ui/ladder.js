@@ -2,6 +2,7 @@
 // any platform with rating tiers.
 import { nextTierFor, tierFor } from "../lib/platforms/index.js";
 import { $, currentPlatform, esc, isCodeforces, state } from "./core.js";
+import { isDark } from "./theme.js";
 
 // Codeforces uses CSS variables so its colors follow the page's light or dark mode.
 const CF_SCALE = {
@@ -21,7 +22,7 @@ const CF_SCALE = {
   firstLabel: "below 1200",
 };
 
-const prefersDark = () => window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
+const prefersDark = isDark;
 
 /** The ladder scale for a platform, or null if it has no rating tiers. */
 export function scaleFor(platform) {

@@ -8,6 +8,9 @@ import { STATS_FIELDS, renderStatsCard } from "./stats.js";
 import { TYPING_PARAMS, renderTypingCard } from "./typing.js";
 import { UPCOMING_FIELDS, UPCOMING_PARAMS, renderUpcomingCard } from "./upcoming.js";
 import { COMBINED_PARAMS, renderCombinedCard } from "./combined.js";
+import { STREAK_FIELDS, renderStreakCard } from "./streak.js";
+import { BANNER_PARAMS, renderBannerCard } from "./banner.js";
+import { SOCIAL_PARAMS, renderSocialCard } from "./social.js";
 import { readParams } from "./params.js";
 
 export { renderErrorCard } from "./stats.js";
@@ -68,6 +71,16 @@ export const CARDS = [
     themed: true,
   },
   {
+    type: "streak",
+    group: "codeforces",
+    label: "Streak",
+    description: "Current and longest run of days with a submission",
+    render: renderStreakCard,
+    needs: "submissions",
+    fields: STREAK_FIELDS,
+    themed: true,
+  },
+  {
     type: "contests",
     group: "codeforces",
     label: "Contests",
@@ -85,6 +98,17 @@ export const CARDS = [
     render: renderBadge,
     needs: "handle",
     fields: [],
+    themed: false,
+  },
+  {
+    type: "banner",
+    group: "extra",
+    label: "Header banner",
+    description: "A wide gradient banner with your name, waves that move",
+    render: renderBannerCard,
+    needs: "none",
+    fields: [],
+    params: BANNER_PARAMS,
     themed: false,
   },
   {
@@ -131,10 +155,22 @@ export const CARDS = [
     params: COMBINED_PARAMS,
     themed: true,
   },
+  {
+    // Used by the README generator's "Connect with me" row; not listed in the builder.
+    type: "social",
+    group: "hidden",
+    label: "Social link",
+    description: "A link badge for one site",
+    render: renderSocialCard,
+    needs: "none",
+    fields: [],
+    params: SOCIAL_PARAMS,
+    themed: false,
+  },
 ];
 
 // The Codeforces cards also work for other platforms through `platform=`.
-const ANY_PLATFORM = new Set(["stats", "rating", "solved", "heatmap", "contests", "badge"]);
+const ANY_PLATFORM = new Set(["stats", "rating", "solved", "heatmap", "streak", "contests", "badge"]);
 
 for (const card of CARDS) {
   card.params ??= [];

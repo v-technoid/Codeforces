@@ -53,6 +53,8 @@ const COMMON_ZONES = [
 const NOTES = {
   badge: "The badge uses the same colors everywhere, so it reads well on both GitHub themes.",
   typing: "The typing intro has a see through background, so it fits both GitHub themes. Pick a text color that reads on light and dark.",
+  banner: "Banners look best stretched to the full README width: add width=\"100%\" to the img tag. The README generator does this for you.",
+  streak: "A streak counts days with at least one submission. It stays alive until the end of the day after your last one.",
   combined: "Fill in the platforms you use and leave the rest empty. Live previews need the site's server (node server.js).",
 };
 
@@ -247,6 +249,11 @@ function paramInputHtml(spec, value) {
     case "color":
       return `<div class="param param-inline"><label class="color"><input type="color" data-param="${spec.name}" value="#${value || "ffffff"}" /><span>${spec.label}${value ? "" : " (none)"}</span></label>
         ${value && !spec.default ? `<button type="button" class="link-button" data-param="${spec.name}" data-action="clear">Remove</button>` : ""}</div>`;
+    case "choice":
+      return `<label class="param" for="${id}"><span class="param-label">${spec.label}</span>
+        <select id="${id}" class="input select" data-param="${spec.name}">
+          ${spec.options.map((o) => `<option value="${o.value}"${o.value === value ? " selected" : ""}>${esc(o.label)}</option>`).join("")}
+        </select>${hint}</label>`;
     case "timezone": {
       const zones = [...new Set([BROWSER_TZ, ...COMMON_ZONES, value])];
       return `<label class="param" for="${id}"><span class="param-label">${spec.label}</span>

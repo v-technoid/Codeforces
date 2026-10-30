@@ -3,32 +3,103 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Coder Cards for your GitHub README</title>
+    <title>Coder Stats Card: live coding stats for your GitHub README</title>
     <meta
       name="description"
-      content="Live cards for your GitHub profile README from Codeforces, LeetCode, AtCoder, CodeChef, GeeksforGeeks, HackerRank and more: ratings, rating graphs, problems solved and heatmaps, plus a typing intro, tech stack and upcoming contests. Or generate the whole README."
+      content="Live cards for your GitHub profile README from Codeforces, LeetCode, AtCoder, CodeChef, GeeksforGeeks, HackerRank and 7 more platforms: ratings, rating graphs, problems solved and heatmaps, plus a typing intro, tech stack and upcoming contests. Or generate the whole README."
     />
-    <meta name="theme-color" content="#f3f4f7" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#121624" media="(prefers-color-scheme: dark)" />
-    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href="https://coderstatscard.vercel.app/" />
+    <meta name="robots" content="index, follow" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f6f5fc" />
+    <meta name="author" content="Vishnuppriyan PL" />
+
+    <!-- Link previews on social sites and chat apps -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Coder Stats Card" />
+    <meta property="og:title" content="Coder Stats Card: live coding stats for your GitHub README" />
+    <meta
+      property="og:description"
+      content="Rating graphs, problems solved and heatmaps from 13 coding platforms, as cards that update on their own in your GitHub profile."
+    />
+    <meta property="og:url" content="https://coderstatscard.vercel.app/" />
+    <meta property="og:image" content="https://coderstatscard.vercel.app/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Coder Stats Card: rating graph, heatmap and profile cards" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Coder Stats Card: live coding stats for your GitHub README" />
+    <meta
+      name="twitter:description"
+      content="Rating graphs, problems solved and heatmaps from 13 coding platforms, as cards that update on their own in your GitHub profile."
+    />
+    <meta name="twitter:image" content="https://coderstatscard.vercel.app/og.png" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Coder Stats Card",
+        "url": "https://coderstatscard.vercel.app/",
+        "description": "Live cards for your GitHub profile README from 13 coding platforms, plus a README generator.",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "author": { "@type": "Person", "name": "Vishnuppriyan PL" },
+        "codeRepository": "https://github.com/v-technoid/Codeforces"
+      }
+    </script>
+
+    <!-- Apply the saved light or dark choice before the page paints, so it never flashes. -->
+    <script>
+      (function () {
+        var choice;
+        try {
+          choice = localStorage.getItem("coder-stats-card-theme");
+        } catch (e) {}
+        var dark = choice === "dark" || (choice !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", dark ? "#0d0c1c" : "#f6f5fc");
+      })();
+    </script>
+
+    <!-- Vercel Web Analytics. Enable it on the project's Analytics page in Vercel.
+         If Vercel shows a different script path there, put it in ANALYTICS_SRC. -->
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+      (function () {
+        var ANALYTICS_SRC = "/_vercel/insights/script.js";
+        var local = location.protocol === "file:" || /^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname);
+        if (local) return; // the local server has no analytics endpoint
+        var s = document.createElement("script");
+        s.defer = true;
+        s.src = ANALYTICS_SRC;
+        document.head.appendChild(s);
+      })();
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
     />
-    <link rel="stylesheet" href="css/style.css" />
-    <script type="module" src="js/app.js"></script>
+    <link rel="stylesheet" href="/css/style.css" />
+    <script type="module" src="/js/app.js"></script>
   </head>
   <body>
     <!-- Animated background behind the hero, see js/ui/background.js -->
     <canvas class="hero-bg" id="hero-bg" aria-hidden="true"></canvas>
 
     <div class="page">
-      <header class="site-header">
+      <header class="site-header" id="site-header">
         <a href="./" class="brand" id="brand">
-          <img src="favicon.svg" alt="" width="26" height="26" />
-          <span>Coder Cards</span>
+          <img src="/favicon.svg" alt="" width="26" height="26" />
+          <span>Coder Stats Card</span>
         </a>
         <nav class="nav" aria-label="Sections">
           <a href="#build">Cards</a>
@@ -36,6 +107,20 @@
           <a href="#compare">Compare</a>
           <a href="#options">Link options</a>
         </nav>
+        <button type="button" class="theme-toggle" id="theme-toggle" data-choice="system" aria-label="Theme">
+          <!-- Sun, moon and half circle (auto); CSS shows the one for the current choice. -->
+          <svg class="theme-icon theme-icon-light" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4.2" />
+            <path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" />
+          </svg>
+          <svg class="theme-icon theme-icon-dark" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20.2 14.6A8.3 8.3 0 0 1 9.4 3.8a8.3 8.3 0 1 0 10.8 10.8Z" />
+          </svg>
+          <svg class="theme-icon theme-icon-system" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="8.5" />
+            <path d="M12 3.5a8.5 8.5 0 0 1 0 17Z" class="fill" />
+          </svg>
+        </button>
         <a class="gh-button" href="https://github.com/v-technoid/Codeforces" target="_blank" rel="noopener noreferrer">
           <span class="icon-gh" aria-hidden="true"></span>
           <span class="gh-button-text"><span class="gh-button-long">Star on </span>GitHub</span>
@@ -47,7 +132,8 @@
         <!-- Hero -->
         <section class="hero">
           <div class="hero-copy">
-            <h1 class="hero-title">Your coding stats, live on your GitHub profile</h1>
+            <p class="hero-kicker"><span class="live-dot" aria-hidden="true"></span><b>Live</b> stats from 13 coding platforms, free and open source</p>
+            <h1 class="hero-title">Your coding stats, <span class="grad-text">live</span> on your GitHub profile</h1>
             <p class="hero-lede">
               Cards that update on their own: ratings, rating graphs, problems solved, a year of submissions and
               recent contests from 13 coding platforms. Add a typing intro, your tech stack and upcoming contests, or
@@ -165,6 +251,14 @@
 
           <div class="gen-grid">
             <div class="panel gen-controls">
+              <fieldset class="group">
+                <legend class="legend">Start from</legend>
+                <div class="presets" id="gen-presets"></div>
+              </fieldset>
+              <label class="param" for="gen-github">
+                <span class="param-label">Your GitHub username</span>
+                <input class="input" id="gen-github" placeholder="Optional, for links and GitHub stats" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="60" />
+              </label>
               <fieldset class="group">
                 <legend class="legend">Sections</legend>
                 <div class="gen-sections" id="gen-sections"></div>
@@ -337,6 +431,23 @@
                     <span class="example">Example: <code>type=upcoming&amp;count=3&amp;tz=Asia/Kolkata</code></span>
                   </td>
                 </tr>
+                <tr>
+                  <td><code>type=banner</code></td>
+                  <td>
+                    Header banner. <code>title</code>, <code>subtitle</code>, <code>shape</code> (wave, slice or rounded),
+                    <code>from</code> and <code>to</code> for the gradient, <code>text_color</code>, <code>height</code>, and
+                    <code>footer=true</code> to flip it for the bottom of a README.
+                    <span class="example">Example: <code>type=banner&amp;title=Hi, I'm Vishnu&amp;shape=slice</code></span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>type=social</code></td>
+                  <td>
+                    One link badge for a "Connect with me" row. <code>site</code> is github, linkedin, x, email, website,
+                    youtube, instagram or discord, and <code>label</code> changes its text.
+                    <span class="example">Example: <code>type=social&amp;site=linkedin</code></span>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -372,8 +483,8 @@
       <footer class="site-footer">
         <div class="footer-brand">
           <a href="./" class="brand">
-            <img src="favicon.svg" alt="" width="24" height="24" />
-            <span>Coder Cards</span>
+            <img src="/favicon.svg" alt="" width="24" height="24" />
+            <span>Coder Stats Card</span>
           </a>
           <p class="footer-text">Live coding stats and README extras for your GitHub profile, from 13 platforms.</p>
         </div>

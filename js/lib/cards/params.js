@@ -3,7 +3,8 @@
 //
 // Each card lists its params as plain objects:
 //   { name, label, kind, default, ... }
-// kind is one of: "list", "text", "number", "bool", "color", "timezone".
+// kind is one of: "list", "text", "number", "bool", "color", "timezone", "choice".
+// A "choice" lists its allowed values as options: [{ value, label }].
 // The same description drives link parsing, link building and the builder inputs.
 
 const first = (v) => (Array.isArray(v) ? v[0] : v);
@@ -46,6 +47,10 @@ function clean(spec, raw) {
     }
     case "timezone":
       return isValidTimeZone(raw) ? raw : spec.default;
+    case "choice": {
+      const v = String(raw ?? "").trim().toLowerCase();
+      return spec.options.some((o) => o.value === v) ? v : spec.default;
+    }
     default:
       return spec.default;
   }
