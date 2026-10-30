@@ -1,6 +1,7 @@
 // Builds the Markdown and HTML that people paste into a README.
 import { getCard } from "../lib/cards/index.js";
 import { SOCIALS } from "../lib/cards/social.js";
+import { siteInfo } from "../lib/contests.js";
 import { getPlatform } from "../lib/platforms/index.js";
 import { cardUrl } from "../lib/url.js";
 import { ORIGIN } from "./core.js";
@@ -9,10 +10,13 @@ import { ORIGIN } from "./core.js";
 const attr = (v) => String(v).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 
 /** Where clicking a card should take a visitor. */
-export function cardLink(type, handle, platformId = "codeforces") {
+export function cardLink(type, handle, platformId = "codeforces", params = {}) {
   const card = getCard(type);
   if (card.needsHandle) return getPlatform(card.anyPlatform ? platformId : "codeforces").profileUrl(handle);
-  if (type === "upcoming") return "https://codeforces.com/contests";
+  if (type === "upcoming") {
+    const sites = params?.sites ?? [];
+    return sites.length === 1 ? siteInfo(sites[0]).url : null;
+  }
   return null;
 }
 
@@ -23,7 +27,7 @@ export function cardAlt(type, handle, params, platformId = "codeforces") {
   if (type === "combined") return params?.title || "Coding profiles";
   if (type === "typing") return params?.lines?.join(". ") ?? "Typing intro";
   if (type === "stack") return params?.title || "Tech stack";
-  if (type === "upcoming") return "Upcoming Codeforces contests";
+  if (type === "upcoming") return "Upcoming coding contests";
   if (type === "social") return params?.label || SOCIALS[params?.site]?.label || "Link";
   if (type === "banner") return [params?.title, params?.subtitle].filter(Boolean).join(". ") || "Banner";
   return `${handle} on ${site}${card.type === "stats" ? "" : `, ${card.label.toLowerCase()}`}`;

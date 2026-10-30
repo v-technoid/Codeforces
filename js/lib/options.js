@@ -96,6 +96,22 @@ export function parseOptions(query) {
     theme,
     hide,
     hideBorder: truthy(first(query.hide_border)),
+    radius: readRadius(first(query.radius ?? query.border_radius)),
+    cacheSeconds: readCache(first(query.cache)),
     animate: first(query.animate) !== "false" && first(query.animate) !== "0",
   };
+}
+
+/** Corner radius 0 to 24, or undefined for the default. `border_radius` also works. */
+function readRadius(v) {
+  if (v === undefined || v === "") return undefined;
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.min(24, Math.max(0, Math.round(n))) : undefined;
+}
+
+/** How long a card may be cached, from 10 minutes to a day, or undefined for the default. */
+function readCache(v) {
+  const n = Number(v);
+  if (v === undefined || v === "" || !Number.isFinite(n)) return undefined;
+  return Math.min(86400, Math.max(600, Math.round(n)));
 }

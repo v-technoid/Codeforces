@@ -8,19 +8,19 @@ Live cards for your GitHub profile README from 13 coding platforms: ratings, rat
 
 | Platform | `platform=` | Cards | How it reads your data |
 | -------- | ----------- | ----- | ---------------------- |
-| Codeforces | `codeforces` (default) | profile, rating, solved, heatmap, streak, contests, badge | Official API |
-| LeetCode | `leetcode` | profile, rating, solved, heatmap, streak, contests, badge | LeetCode's public GraphQL endpoint |
-| AtCoder | `atcoder` | profile, rating, contests, badge | AtCoder's rating history JSON, plus AtCoder Problems for solved counts |
-| CodeChef | `codechef` | profile, rating, contests, badge | Public profile page |
-| GeeksforGeeks | `gfg` | profile, solved, badge | Public profile page and practice API |
-| HackerRank | `hackerrank` | profile, solved, badge | HackerRank's website JSON |
-| TopCoder | `topcoder` | profile, badge | Official members API |
-| Codewars | `codewars` | profile, solved, badge | Official API |
-| DMOJ | `dmoj` | profile, rating, badge | Official API |
-| SPOJ | `spoj` | profile, badge | Public profile page |
-| Kattis | `kattis` | profile, badge | Public profile page |
-| UVa Online Judge | `uva` | profile, heatmap, streak, badge | uHunt API |
-| CSES | `cses` | profile, badge | Public problem set page (use your user number) |
+| Codeforces | `codeforces` (default) | profile, rating, solved, heatmap, streak, achievements, contests, badge | Official API |
+| LeetCode | `leetcode` | profile, rating, solved, heatmap, streak, achievements, contests, badge | LeetCode's public GraphQL endpoint |
+| AtCoder | `atcoder` | profile, rating, heatmap, streak, achievements, contests, badge | AtCoder's rating history JSON, plus AtCoder Problems for solved counts and daily submissions |
+| CodeChef | `codechef` | profile, rating, heatmap, streak, achievements, contests, badge | Public profile page |
+| GeeksforGeeks | `gfg` | profile, solved, achievements, badge | Public profile page and practice API |
+| HackerRank | `hackerrank` | profile, solved, achievements, badge | HackerRank's website JSON |
+| TopCoder | `topcoder` | profile, achievements, badge | Official members API |
+| Codewars | `codewars` | profile, solved, achievements, badge | Official API |
+| DMOJ | `dmoj` | profile, rating, achievements, badge | Official API |
+| SPOJ | `spoj` | profile, achievements, badge | Public profile page |
+| Kattis | `kattis` | profile, achievements, badge | Public profile page |
+| UVa Online Judge | `uva` | profile, heatmap, streak, achievements, badge | uHunt API |
+| CSES | `cses` | profile, achievements, badge | Public problem set page (use your user number) |
 
 Platforms marked "public profile page" have no API, so their reader can break when the site redesigns its pages. If one stops working, run the check script below and open an issue with its output.
 
@@ -48,6 +48,7 @@ Pick one with `type`:
 | `rating`   | Every rated contest drawn over the colored rank bands.                         |
 | `solved`   | Problems solved, broken down by difficulty, badge or language.                 |
 | `heatmap`  | Submissions per day over the last year.                                        |
+| `trophies` | Achievements: trophies from bronze to diamond for peak rating, problems solved, contests, best rank, longest streak and active days, with progress to the next level. Every platform. |
 | `streak`   | Current and longest run of days with a submission, with a flame that flickers. Codeforces, LeetCode and UVa. |
 | `contests` | Your last five rated contests with rank and rating change.                     |
 | `badge`    | A small one line badge showing your rank and rating.                           |
@@ -61,7 +62,7 @@ README extras, which don't need `platform` or `username`:
 | `combined` | Your profile on every platform you use, as tiles in one card.                  | One handle per platform by its name, like `codeforces=you&leetcode=you`, plus `title` |
 | `typing`   | Your lines typed out one after another with a blinking cursor.                 | `lines` (separated by `;`), `color`, `size`, `width`, `speed`, `pause`, `center`, `background` |
 | `stack`    | Your languages and tools as colored chips.                                     | `items` (separated by `,`), `title` |
-| `upcoming` | The next Codeforces contests with start time, length and a countdown.          | `count` (1 to 6), `tz` (like `Asia/Kolkata`) |
+| `upcoming` | The next contests on Codeforces, LeetCode, AtCoder and CodeChef, with start time, length and a countdown. | `sites` (like `atcoder,codechef`, all four by default), `count` (1 to 6), `tz` (like `Asia/Kolkata`) |
 
 ```md
 ![All my platforms](https://coderstatscard.vercel.app/api/card?type=combined&codeforces=YOU&leetcode=YOU&atcoder=YOU)
@@ -77,11 +78,13 @@ GitHub shows README images without running any scripts, so every animation here 
 | `platform`      | Which site, see the table above. Defaults to `codeforces`.                                     | `platform=atcoder`   |
 | `username`      | Your handle on that platform. `handle` also works.                                             | `username=tourist`   |
 | `type`          | Which card, see above. Defaults to `stats`.                                                    | `type=heatmap`       |
-| `theme`         | `light`, `dark`, `abyss`, `ember`, `frost`, `dusk`, `aurora`, `twilight`, `paper`.              | `theme=dark`         |
+| `theme`         | `light`, `dark`, `abyss`, `ember`, `frost`, `dusk`, `aurora`, `twilight`, `paper`, `transparent`. | `theme=dark`         |
 | `hide`          | Comma separated parts to leave out. The builder on the site lists them for each card.          | `hide=country,trend` |
 | `bg_color`, `title_color`, `text_color`, `muted_color`, `border_color` | Your own colors, hex without `#`.  | `bg_color=102a43`    |
 | `hide_border`   | Removes the outline.                                                                           | `hide_border=true`   |
 | `animate`       | `false` for a still card.                                                                      | `animate=false`      |
+| `radius`        | Corner roundness, 0 (square) to 24. Defaults to 10. `border_radius` also works.               | `radius=0`           |
+| `cache`         | How long GitHub may keep a live card, in seconds, 600 to 86400. Defaults to 1800.              | `cache=3600`         |
 
 ### Match GitHub light and dark mode
 
@@ -154,13 +157,17 @@ Then open http://localhost:3000. A card lives at http://localhost:3000/api/card?
 
 Platforms other than Codeforces need the server, because their sites don't let a web page read them directly.
 
+### Compare two coders
+
+The Compare section works on every platform: pick one, enter two handles, and see both on the rank ladder (for rated platforms) and stat by stat, with the better value highlighted on each row.
+
 ### Check the platform readers
 
 ```bash
 node scripts/check.js codechef=YOUR_HANDLE gfg=YOUR_HANDLE spoj=YOUR_HANDLE
 ```
 
-With no arguments it checks a few well known public profiles. For each platform it prints what it read, or the error.
+With no arguments it checks a few well known public profiles. For each platform it prints what it read, or the error. It also checks the upcoming contest list from each of the four contest sites.
 
 ## Deploy on Vercel
 

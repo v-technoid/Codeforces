@@ -49,5 +49,7 @@ export function fromCodeforces(s) {
       { label: "Country", value: user.country },
     ],
     activity: s.activity,
+    recent: s.solved?.recent,
+    languages: s.solved?.languages,
   };
 }

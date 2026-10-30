@@ -100,6 +100,19 @@ export const themes = {
     dark: false,
   },
 };
+// See through, in middle tones that read on both GitHub light and dark.
+themes.transparent = {
+  id: "transparent",
+  label: "Transparent",
+  background: "rgba(0,0,0,0)",
+  border: "#8b949e66",
+  title: "#7a6bf0",
+  text: "#7d8590",
+  muted: "#8b949e",
+  track: "#8b949e33",
+  dark: false,
+};
+
 export const themeList = Object.values(themes);
 export const DEFAULT_THEME = "light";
 export function getTheme(id) {

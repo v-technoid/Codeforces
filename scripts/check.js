@@ -5,6 +5,7 @@
 // With no arguments it tries a few well known public profiles. Pass your own
 // handles to check the other platforms. For each platform it prints what it
 // read, or the error, so a broken reader is easy to spot.
+import { CONTEST_SITES, getAllUpcoming } from "../js/lib/contests.js";
 import { PLATFORMS } from "../js/lib/platforms/index.js";
 
 // Profiles known to exist. Pass handles for the other platforms yourself.
@@ -30,7 +31,7 @@ for (const p of PLATFORMS) {
   if (!handle) continue;
   const started = Date.now();
   try {
-    const s = await p.fetch(handle);
+    const s = await p.fetch(handle, { submissions: true });
     const facts = (s.facts ?? []).filter((f) => f.value !== undefined && f.value !== null && f.value !== "");
     console.log(`\n✓ ${p.name} (${handle}) in ${Date.now() - started} ms`);
     console.log(`  rating ${show(s.rating)}, max ${show(s.maxRating)}, rank ${show(s.rankLabel)}, contests ${show(s.contests)}`);
@@ -44,4 +45,16 @@ for (const p of PLATFORMS) {
     console.log(`\n✗ ${p.name} (${handle}): ${err.kind ?? "error"}: ${err.message}`);
   }
 }
-console.log(failures ? `\n${failures} platform(s) failed. Copy this output into a GitHub issue.` : "\nAll platforms read correctly.");
+// Upcoming contests, one site at a time, so a broken source is easy to spot.
+console.log("\nUpcoming contests:");
+for (const site of CONTEST_SITES) {
+  try {
+    const list = await getAllUpcoming([site.id]);
+    console.log(`  ✓ ${site.name}: ${list.length} upcoming${list[0] ? `, next "${list[0].name}" at ${new Date(list[0].startTimeSeconds * 1000).toISOString()}` : ""}`);
+  } catch (err) {
+    failures++;
+    console.log(`  ✗ ${site.name}: ${err.message}`);
+  }
+}
+
+console.log(failures ? `\n${failures} check(s) failed. Copy this output into a GitHub issue.` : "\nEverything read correctly.");

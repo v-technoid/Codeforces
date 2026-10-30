@@ -5,6 +5,7 @@ import { renderContestsCard } from "./contests.js";
 import { renderHeatmapCard } from "./heatmap.js";
 import { renderRatingCard } from "./rating.js";
 import { renderStreakCard } from "./streak.js";
+import { renderTrophiesCard } from "./trophies.js";
 import { emptyBody, escapeXml, fmt, frame, truncate, FONT } from "./shared.js";
 
 const present = (v) => v !== undefined && v !== null && v !== "" && !Number.isNaN(v);
@@ -271,6 +272,8 @@ export function renderPlatformCard(type, platformId, p, options) {
       return renderHeatmapCard(asRatings(p), { ...shared, eyebrow: `${NAME} SUBMISSIONS` });
     case "streak":
       return renderStreakCard(asRatings(p), { ...shared, eyebrow: `${NAME} STREAK` });
+    case "trophies":
+      return renderTrophiesCard(p, options);
     case "solved":
       return renderSolved(platform, p, options);
     case "badge":

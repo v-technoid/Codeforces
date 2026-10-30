@@ -117,8 +117,8 @@ export async function fetchStats(handle, full = false) {
 }
 
 /** Stats for a platform other than Codeforces, through /api/profile. */
-export async function fetchProfile(platformId, handle) {
-  const body = await api(`api/profile?platform=${platformId}&username=${encodeURIComponent(handle)}`);
+export async function fetchProfile(platformId, handle, full = false) {
+  const body = await api(`api/profile?platform=${platformId}&username=${encodeURIComponent(handle)}${full ? "&full=1" : ""}`);
   if (!body) {
     throw new Error("Other platforms need the site's server. Run node server.js and open the page from there.");
   }
@@ -152,7 +152,8 @@ export function loadMulti(handles) {
 export async function loadUpcoming() {
   try {
     const body = await api("api/contests");
-    const list = body ? body.contests : await getUpcomingContests();
+    // Without the site's server, only Codeforces can be read straight from the browser.
+    const list = body ? body.contests : (await getUpcomingContests()).map((c) => ({ ...c, site: "codeforces" }));
     state.upcoming = list;
     state.upcomingIsSample = false;
     notify();

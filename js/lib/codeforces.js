@@ -110,6 +110,45 @@ const BUCKETS = [
 const DAY = 86400;
 const dayIndex = (seconds) => Math.floor(seconds / DAY);
 const isoDay = (index) => new Date(index * DAY * 1000).toISOString().slice(0, 10);
+const VERDICTS = {
+  OK: "Accepted",
+  WRONG_ANSWER: "Wrong answer",
+  TIME_LIMIT_EXCEEDED: "Time limit",
+  MEMORY_LIMIT_EXCEEDED: "Memory limit",
+  IDLENESS_LIMIT_EXCEEDED: "Idleness limit",
+  RUNTIME_ERROR: "Runtime error",
+  COMPILATION_ERROR: "Compile error",
+  PARTIAL: "Partial",
+  CHALLENGED: "Hacked",
+  SKIPPED: "Skipped",
+  TESTING: "Testing",
+};
+
+/** Groups compiler names like "GNU C++20 (64)" or "PyPy 3-64" into one language. */
+export function languageFamily(name = "") {
+  const n = name.toLowerCase();
+  if (n.includes("c++") || n.includes("clang++") || n === "cpp") return "C++";
+  if (n.includes("c#") || n.includes("csharp") || n.includes("mono")) return "C#";
+  if (n.includes("python") || n.includes("pypy")) return "Python";
+  if (n.includes("kotlin")) return "Kotlin";
+  if (n.includes("java") && !n.includes("javascript")) return "Java";
+  if (n.includes("javascript") || n.includes("node")) return "JavaScript";
+  if (n.includes("typescript")) return "TypeScript";
+  if (n.includes("rust")) return "Rust";
+  if (n === "go" || n.includes("golang") || n.startsWith("go ")) return "Go";
+  if (/\bgnu c\d*\b|^c$|\bc11\b|\bc17\b/.test(n)) return "C";
+  if (n.includes("haskell")) return "Haskell";
+  if (n.includes("ruby")) return "Ruby";
+  if (n.includes("scala")) return "Scala";
+  if (n.includes("swift")) return "Swift";
+  if (n.includes("pascal") || n.includes("delphi")) return "Pascal";
+  if (n.includes("ocaml")) return "OCaml";
+  if (n.includes("php")) return "PHP";
+  if (n.includes("d ") || n === "d") return "D";
+  if (n.includes("sql")) return "SQL";
+  return name.split(/[\s(]/)[0] || "Other";
+}
+
 export function summarizeSolved(submissions, now = new Date()) {
   const solved = new Map();
   const acceptedDays = new Set();
@@ -121,6 +160,29 @@ export function summarizeSolved(submissions, now = new Date()) {
     const key = `${s.problem.contestId ?? s.problem.problemsetName ?? "x"}-${s.problem.index}`;
     if (!solved.has(key)) solved.set(key, s.problem);
   }
+  // Solved problems per language: each problem counts once per language it was accepted in.
+  const langSeen = new Set();
+  const langs = new Map();
+  for (const s of submissions) {
+    if (s.verdict !== "OK") continue;
+    const lang = languageFamily(s.programmingLanguage);
+    const key = `${lang}|${s.problem.contestId ?? s.problem.problemsetName ?? "x"}-${s.problem.index}`;
+    if (langSeen.has(key)) continue;
+    langSeen.add(key);
+    langs.set(lang, (langs.get(lang) ?? 0) + 1);
+  }
+  const languages = [...langs.entries()].sort((a, b) => b[1] - a[1]).map(([name, count]) => ({ name, count }));
+
+  // The API lists submissions newest first.
+  const recent = submissions.slice(0, 6).map((s) => ({
+    title: `${s.problem.index}. ${s.problem.name}`,
+    ok: s.verdict === "OK",
+    verdict: VERDICTS[s.verdict] ?? (s.verdict ? s.verdict.toLowerCase().replace(/_/g, " ") : "Testing"),
+    lang: languageFamily(s.programmingLanguage),
+    time: s.creationTimeSeconds,
+    rating: s.problem.rating,
+  }));
+
   const buckets = BUCKETS.map((b) => ({ ...b, count: 0 }));
   const tags = new Map();
   let unrated = 0;
@@ -169,6 +231,8 @@ export function summarizeSolved(submissions, now = new Date()) {
     currentStreak,
     longestStreak,
     hardest,
+    languages,
+    recent,
   };
 }
 export function summarizeActivity(submissions, now = new Date()) {

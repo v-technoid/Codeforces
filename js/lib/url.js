@@ -24,6 +24,7 @@ export function cardUrl(origin, c, themeOverride) {
       if (hex) p.set(param, hex);
     }
     if (c.hideBorder) p.set("hide_border", "true");
+    if (c.radius !== undefined && c.radius !== 10) p.set("radius", String(c.radius));
   }
   if (c.animate === false && card.type !== "badge") p.set("animate", "false");
   // Commas, semicolons and slashes read better unescaped and are safe in a query string.

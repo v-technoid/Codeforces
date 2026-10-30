@@ -263,6 +263,9 @@
                 <legend class="legend">Sections</legend>
                 <div class="gen-sections" id="gen-sections"></div>
               </fieldset>
+              <details class="gen-group gen-look">
+                <summary><span>Look</span><span class="gen-count is-on">Themes and layout</span></summary>
+                <div class="gen-group-body gen-look-body">
 
               <fieldset class="group">
                 <legend class="legend" id="gen-theme-legend">Theme</legend>
@@ -280,6 +283,8 @@
                 <input type="checkbox" id="gen-pairs" />
                 <span>Two platform cards per row</span>
               </label>
+                </div>
+              </details>
             </div>
 
             <div class="gen-output">
@@ -321,9 +326,11 @@
 
         <!-- Compare -->
         <section class="section" id="compare" aria-labelledby="compare-heading">
-          <h2 id="compare-heading" class="h2">Compare two Codeforces handles</h2>
-          <p class="note">See where you and a friend stand on Codeforces, side by side.</p>
+          <h2 id="compare-heading" class="h2">Compare two coders</h2>
+          <p class="note">Pick a platform and see where you and a friend stand, side by side. Each row shows who leads.</p>
           <form class="compare-form" id="compare-form" novalidate>
+            <label class="sr-only" for="cmp-platform">Platform</label>
+            <select id="cmp-platform" class="input select cmp-platform"></select>
             <label class="sr-only" for="cmp-a">First handle</label>
             <input id="cmp-a" class="input" placeholder="First handle" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="24" />
             <span class="compare-and" aria-hidden="true">and</span>
@@ -397,6 +404,20 @@
                   <td>Removes the outline around the card.</td>
                 </tr>
                 <tr>
+                  <td><code>radius</code></td>
+                  <td>
+                    Corner roundness from 0 (square) to 24. The default is 10.
+                    <span class="example">Example: <code>radius=0</code></span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>cache</code></td>
+                  <td>
+                    How long GitHub may keep a live card, in seconds, from 600 (10 minutes) to 86400 (a day). The default is 1800.
+                    <span class="example">Example: <code>cache=3600</code></span>
+                  </td>
+                </tr>
+                <tr>
                   <td><code>animate</code></td>
                   <td>Set to false for a still card with no animation.</td>
                 </tr>
@@ -425,10 +446,11 @@
                   </td>
                 </tr>
                 <tr>
-                  <td><code>count</code> and <code>tz</code></td>
+                  <td><code>sites</code>, <code>count</code> and <code>tz</code></td>
                   <td>
-                    Upcoming contests only. How many to list, and the time zone for their start times.
-                    <span class="example">Example: <code>type=upcoming&amp;count=3&amp;tz=Asia/Kolkata</code></span>
+                    Upcoming contests only. Which platforms to include (codeforces, leetcode, atcoder, codechef; all four by
+                    default), how many to list, and the time zone for their start times.
+                    <span class="example">Example: <code>type=upcoming&amp;sites=atcoder,codechef&amp;count=3&amp;tz=Asia/Kolkata</code></span>
                   </td>
                 </tr>
                 <tr>
@@ -452,7 +474,7 @@
             </table>
           </div>
           <p class="note">
-            Codeforces cards refresh every 30 minutes and upcoming contests every 10, so new results show up soon
+            Platform cards refresh every 30 minutes and upcoming contests every 10, so new results show up soon
             after they happen. Links made with earlier versions of this project still work.
           </p>
         </section>

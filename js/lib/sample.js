@@ -103,11 +103,12 @@ export function sampleUpcoming(now = new Date()) {
     return Math.floor(d.getTime() / 1000);
   };
   return [
-    { id: 2101, name: "Codeforces Round (Div. 2)", startTimeSeconds: at(1, 14), durationSeconds: 7200 },
-    { id: 2102, name: "Educational Codeforces Round (Rated for Div. 2)", startTimeSeconds: at(3, 14), durationSeconds: 7200 },
-    { id: 2103, name: "Codeforces Round (Div. 1 + Div. 2)", startTimeSeconds: at(5, 14), durationSeconds: 9000 },
-    { id: 2104, name: "Codeforces Round (Div. 3)", startTimeSeconds: at(8, 14), durationSeconds: 8100 },
-    { id: 2105, name: "Codeforces Global Round", startTimeSeconds: at(11, 14), durationSeconds: 10800 },
+    { site: "codeforces", name: "Codeforces Round (Div. 2)", startTimeSeconds: at(1, 14), durationSeconds: 7200 },
+    { site: "atcoder", name: "AtCoder Beginner Contest", startTimeSeconds: at(2, 12), durationSeconds: 6000 },
+    { site: "leetcode", name: "Weekly Contest", startTimeSeconds: at(3, 2), durationSeconds: 5400 },
+    { site: "codechef", name: "CodeChef Starters", startTimeSeconds: at(4, 14), durationSeconds: 7200 },
+    { site: "codeforces", name: "Educational Codeforces Round (Rated for Div. 2)", startTimeSeconds: at(5, 14), durationSeconds: 7200 },
+    { site: "leetcode", name: "Biweekly Contest", startTimeSeconds: at(6, 14), durationSeconds: 5400 },
   ];
 }
 

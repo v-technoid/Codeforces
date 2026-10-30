@@ -1,6 +1,6 @@
 // CodeChef has no public API, so this reads the public profile page.
 // If CodeChef redesigns that page, this reader needs updating.
-import { cached, changed, checkHandle, getPage, inner, num, PlatformError, textOf } from "./http.js";
+import { activityFromDays, cached, changed, checkHandle, getPage, inner, num, PlatformError, textOf } from "./http.js";
 
 const NAME = "CodeChef";
 
@@ -64,6 +64,23 @@ export function parseCodechef(html, handle) {
     }
   }
 
+  // The profile page carries its heatmap data as a script variable.
+  let activity;
+  const daily = /userDailySubmissionsStats\s*=\s*(\[[\s\S]*?\])\s*;/.exec(html);
+  if (daily) {
+    try {
+      const days = new Map();
+      for (const d of JSON.parse(daily[1])) {
+        const [y, m, day] = String(d.date).split("-").map(Number);
+        const index = Math.floor(Date.UTC(y, m - 1, day) / 86400000);
+        if (Number.isFinite(index)) days.set(index, (days.get(index) ?? 0) + (Number(d.value) || 0));
+      }
+      if (days.size) activity = activityFromDays(days);
+    } catch {
+      activity = undefined;
+    }
+  }
+
   const tier = rating !== undefined ? codechef.tiers.filter((t) => rating >= t.min).pop() : null;
   return {
     platform: "codechef",
@@ -75,6 +92,7 @@ export function parseCodechef(html, handle) {
     bestRank: history.length ? Math.min(...history.map((h) => h.rank).filter(Boolean)) : undefined,
     history,
     solved,
+    activity,
     primary: { label: "solved", value: solved },
     facts: [
       { label: "Global rank", value: strong[0] ? `#${strong[0].toLocaleString("en-US")}` : undefined },

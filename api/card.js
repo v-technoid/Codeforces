@@ -5,7 +5,8 @@
 //   /api/card?type=typing&lines=Hello;I+solve+problems
 // /api/codeforces is the same endpoint under its original name.
 // Vercel runs this file as a serverless function. It has no dependencies.
-import { CodeforcesError, getCardStats, getUpcomingContests } from "../js/lib/codeforces.js";
+import { CodeforcesError, getCardStats } from "../js/lib/codeforces.js";
+import { getAllUpcoming } from "../js/lib/contests.js";
 import { getCard, renderErrorCard } from "../js/lib/cards/index.js";
 import { renderPlatformCard } from "../js/lib/cards/platform.js";
 import { parseOptions } from "../js/lib/options.js";
@@ -34,6 +35,11 @@ export default async function handler(req, res) {
   res.setHeader("X-Content-Type-Options", "nosniff");
 
   const send = (body, cacheControl) => {
+    // `cache=` lets people choose how fresh live cards are (10 minutes to a day).
+    if (opts.cacheSeconds && cacheControl.startsWith("public, max-age=1800")) {
+      const s = opts.cacheSeconds;
+      cacheControl = `public, max-age=${s}, s-maxage=${s}, stale-while-revalidate=86400`;
+    }
     res.setHeader("Cache-Control", cacheControl);
     res.statusCode = 200;
     res.end(body);
@@ -50,6 +56,7 @@ export default async function handler(req, res) {
     hide: opts.hide,
     hideBorder: opts.hideBorder,
     animate: opts.animate,
+    radius: opts.radius,
     params: opts.params,
     now: new Date(),
   };
@@ -61,7 +68,7 @@ export default async function handler(req, res) {
         return fail(`${platform.name} doesn't share the data for the ${card.label.toLowerCase()} card`, 3600);
       }
       if (!username) return fail(`Add your ${platform.name} handle to the link, like &username=you`, 3600);
-      const stats = await platform.fetch(username);
+      const stats = await platform.fetch(username, { submissions: card.needsSubmissions });
       return send(renderPlatformCard(card.type, platform.id, stats, renderOptions), LIVE);
     }
 
@@ -69,7 +76,7 @@ export default async function handler(req, res) {
 
     let data = null;
     if (card.needsHandle) data = await getCardStats(username, { submissions: card.needsSubmissions });
-    if (card.needs === "upcoming") data = await getUpcomingContests();
+    if (card.needs === "upcoming") data = await getAllUpcoming();
     if (card.needs === "multi") {
       const handles = Object.fromEntries(PLATFORMS.map((p) => [p.id, opts.params[p.id]]).filter(([, h]) => h));
       if (Object.keys(handles).length === 0) return fail("Add at least one handle, like &codeforces=tourist&leetcode=you", 3600);

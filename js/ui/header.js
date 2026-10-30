@@ -3,23 +3,34 @@
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-/** Slides the header away while scrolling down and back while scrolling up. */
+/**
+ * Slides the header away while scrolling down and back while scrolling up.
+ * It waits for a deliberate scroll in one direction (a few dozen pixels)
+ * before moving, so small wobbles don't make it flicker.
+ */
 function setupHeader() {
   const header = document.getElementById("site-header");
   if (!header) return;
+  const HIDE_AFTER = 40; // px scrolled down before it hides
+  const SHOW_AFTER = 16; // px scrolled up before it shows
   let lastY = window.scrollY;
+  let travel = 0; // distance scrolled in the current direction
   let ticking = false;
 
   const update = () => {
     ticking = false;
     const y = Math.max(0, window.scrollY);
     const delta = y - lastY;
-    header.classList.toggle("is-scrolled", y > 8);
-    // Small jitters (trackpads, the address bar on phones) shouldn't flip it.
-    if (Math.abs(delta) < 6) return;
-    const keep = y < 120 || header.contains(document.activeElement);
-    header.classList.toggle("is-hidden", delta > 0 && !keep);
     lastY = y;
+    header.classList.toggle("is-scrolled", y > 8);
+    if (delta === 0) return;
+    // Reset the distance whenever the direction changes.
+    travel = Math.sign(delta) === Math.sign(travel) ? travel + delta : delta;
+    const nearTop = y < 120;
+    const keep = nearTop || header.contains(document.activeElement);
+    if (keep) header.classList.remove("is-hidden");
+    else if (travel > HIDE_AFTER) header.classList.add("is-hidden");
+    else if (travel < -SHOW_AFTER) header.classList.remove("is-hidden");
   };
 
   window.addEventListener(

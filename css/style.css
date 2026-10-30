@@ -21,7 +21,12 @@
   --grid: #e5e2f3;
   --star: #e0a400;
   --shadow: 0 1px 2px rgb(23 21 46 / 0.05), 0 18px 40px -26px rgb(62 44 160 / 0.35);
-  --header-bg: rgb(246 245 252 / 0.78);
+  --header-bg: linear-gradient(90deg, rgb(255 255 255 / 0.86), rgb(244 241 255 / 0.86));
+  --header-line: linear-gradient(90deg, transparent, rgb(90 69 240 / 0.45) 25%, rgb(184 71 242 / 0.45) 60%, rgb(14 173 196 / 0.35) 85%, transparent);
+  --header-shadow: 0 10px 30px -22px rgb(62 44 160 / 0.45);
+  /* Buttons keep strong, saturated colors in both modes so white text stays readable. */
+  --btn-grad: linear-gradient(115deg, #5a45f0 0%, #8b3ff0 55%, #b847f2 100%);
+  --btn-glow: rgb(90 69 240 / 0.55);
 
   /* Codeforces rank colors, tuned per mode for contrast */
   --r-newbie: #808080;
@@ -59,7 +64,11 @@
     --grid: #1a1934;
     --star: #f5c04a;
     --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 22px 44px -26px rgb(0 0 0 / 0.7);
-    --header-bg: rgb(13 12 28 / 0.72);
+    --header-bg: linear-gradient(90deg, rgb(16 15 34 / 0.82), rgb(24 20 50 / 0.82));
+    --header-line: linear-gradient(90deg, transparent, rgb(143 128 255 / 0.5) 25%, rgb(214 133 255 / 0.45) 60%, rgb(69 214 234 / 0.35) 85%, transparent);
+    --header-shadow: 0 12px 30px -20px rgb(0 0 0 / 0.8);
+    --btn-grad: linear-gradient(115deg, #6a54ff 0%, #8f45f2 55%, #c04ee0 100%);
+    --btn-glow: rgb(143 110 255 / 0.5);
 
     --r-newbie: #a8a8a8;
     --r-pupil: #3fbf5a;
@@ -89,7 +98,11 @@
     --grid: #1a1934;
     --star: #f5c04a;
     --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 22px 44px -26px rgb(0 0 0 / 0.7);
-    --header-bg: rgb(13 12 28 / 0.72);
+    --header-bg: linear-gradient(90deg, rgb(16 15 34 / 0.82), rgb(24 20 50 / 0.82));
+    --header-line: linear-gradient(90deg, transparent, rgb(143 128 255 / 0.5) 25%, rgb(214 133 255 / 0.45) 60%, rgb(69 214 234 / 0.35) 85%, transparent);
+    --header-shadow: 0 12px 30px -20px rgb(0 0 0 / 0.8);
+    --btn-grad: linear-gradient(115deg, #6a54ff 0%, #8f45f2 55%, #c04ee0 100%);
+    --btn-glow: rgb(143 110 255 / 0.5);
 
     --r-newbie: #a8a8a8;
     --r-pupil: #3fbf5a;
@@ -206,7 +219,11 @@ code {
   align-items: center;
   gap: 16px 28px;
   padding: 14px 0;
-  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+  /* Coming back is a little slower and softer than going away. */
+  transition:
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.45s ease;
 }
 
 .site-header::before {
@@ -216,12 +233,12 @@ code {
   width: 100vw;
   transform: translateX(-50%);
   z-index: -1;
-  background: var(--header-bg);
-  -webkit-backdrop-filter: saturate(1.5) blur(14px);
-  backdrop-filter: saturate(1.5) blur(14px);
-  border-bottom: 1px solid var(--line);
+  background: var(--header-line) bottom / 100% 1px no-repeat, var(--header-bg);
+  -webkit-backdrop-filter: saturate(1.6) blur(16px);
+  backdrop-filter: saturate(1.6) blur(16px);
+  box-shadow: var(--header-shadow);
   opacity: 0;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.35s ease;
 }
 
 .site-header.is-scrolled::before {
@@ -229,7 +246,12 @@ code {
 }
 
 .site-header.is-hidden {
-  transform: translateY(-110%);
+  transform: translateY(-105%);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 0.45s cubic-bezier(0.55, 0, 0.75, 0.2),
+    opacity 0.35s ease 0.08s;
 }
 
 .brand {
@@ -1066,8 +1088,21 @@ code {
 
 .type-row {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  grid-template-columns: repeat(var(--cols, 6), minmax(0, 1fr));
   gap: 8px;
+}
+
+.type-row > .type {
+  grid-column: span var(--span, 1);
+}
+
+@media (max-width: 1000px) {
+  .type-row {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+  .type-row > .type {
+    grid-column: auto;
+  }
 }
 
 .type {
@@ -1653,8 +1688,23 @@ code {
   display: flex;
   align-items: center;
   gap: 10px;
-  max-width: 680px;
+  max-width: 860px;
   margin-top: 22px;
+}
+
+.compare-form .input,
+.compare-form .button {
+  height: 48px;
+}
+
+.cmp-platform {
+  flex: 0 0 180px;
+}
+
+.cmp-empty {
+  padding: 18px;
+  color: var(--muted);
+  text-align: center;
 }
 
 .compare-and {
@@ -1909,7 +1959,8 @@ code {
   .compare-and {
     display: none;
   }
-  .compare-form .button {
+  .compare-form .button,
+  .compare-form .cmp-platform {
     flex: 1 1 100%;
   }
   .cmp-label {
@@ -1973,6 +2024,9 @@ code {
   }
   .type-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .type-row > .type:last-child:nth-child(odd) {
+    grid-column: span 2;
   }
   .type-desc {
     display: none;
@@ -2162,11 +2216,14 @@ body {
 
 /* Buttons */
 .button-primary {
-  background: var(--grad);
+  background: var(--btn-grad);
   background-size: 160% 100%;
   background-position: 0% 50%;
   color: #fff;
-  box-shadow: 0 10px 24px -12px color-mix(in srgb, var(--accent) 80%, transparent);
+  text-shadow: 0 1px 1px rgb(0 0 0 / 0.15);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    0 10px 24px -12px var(--btn-glow);
   transition: background-position 0.5s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
 
@@ -2174,7 +2231,9 @@ body {
   filter: none;
   background-position: 100% 50%;
   transform: translateY(-1px);
-  box-shadow: 0 14px 30px -12px color-mix(in srgb, var(--accent-2) 80%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.22),
+    0 14px 30px -12px var(--btn-glow);
 }
 
 .button-primary:active:not(:disabled) {
@@ -2442,4 +2501,129 @@ body {
 
 .gh-links img {
   height: 30px;
+}
+
+/* ---------- README generator: folding groups and a preview that stays in view ---------- */
+
+.gen-grid {
+  grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+}
+
+.gen-sections {
+  gap: 8px;
+}
+
+.gen-group {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg) 55%, var(--surface));
+  overflow: hidden;
+}
+
+.gen-group summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 14px;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.gen-group summary::-webkit-details-marker {
+  display: none;
+}
+
+.gen-group summary::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  margin-left: 4px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 0.25s ease;
+}
+
+.gen-group[open] summary::after {
+  transform: rotate(225deg) translateY(-1px);
+}
+
+.gen-group summary:hover {
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.gen-count {
+  margin-left: auto;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--line);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.gen-count.is-on {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.gen-group-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 14px 14px;
+  animation: unfold 0.3s ease;
+}
+
+.gen-look-body {
+  gap: 16px;
+}
+
+@keyframes unfold {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* The preview follows you down the page while you change options. */
+.gen-output {
+  position: sticky;
+  top: 84px;
+}
+
+.gh-body {
+  height: clamp(560px, calc(100vh - 230px), 980px);
+  max-height: none;
+}
+
+@media (max-width: 1000px) {
+  .gen-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .gen-output {
+    position: static;
+  }
+  .gh-body {
+    height: auto;
+    max-height: 760px;
+  }
+}
+
+.corners {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14.5px;
+}
+
+.corners .select {
+  flex: none;
+  width: 150px;
+  height: 36px;
+  font-size: 14px;
 }

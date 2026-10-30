@@ -45,6 +45,16 @@ async function load(name) {
       history.replaceState(null, "", `?platform=${platform.id}&handle=${encodeURIComponent(state.pstats.handle)}`);
       renderAll();
       $("standing").scrollIntoView({ behavior: "smooth", block: "start" });
+      // Some platforms need extra requests for daily activity; it fills in after.
+      if (platform.slowActivity) {
+        resetButton();
+        const quick = state.pstats;
+        const full = await fetchProfile(platform.id, handle, true).catch(() => null);
+        if (full && state.pstats === quick) {
+          state.pstats = full;
+          renderAll();
+        }
+      }
     } catch (err) {
       error.textContent = err instanceof Error ? err.message : "Couldn't load that handle.";
       input.setAttribute("aria-invalid", "true");

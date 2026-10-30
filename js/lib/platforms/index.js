@@ -49,19 +49,19 @@ export function colorFor(platform, stats, dark) {
 
 // Which cards each platform can fill, given the data it shares.
 const SUPPORT = {
-  codeforces: ["stats", "rating", "solved", "heatmap", "streak", "contests", "badge"],
-  leetcode: ["stats", "rating", "solved", "heatmap", "streak", "contests", "badge"],
-  atcoder: ["stats", "rating", "contests", "badge"],
-  codechef: ["stats", "rating", "contests", "badge"],
-  gfg: ["stats", "solved", "badge"],
-  hackerrank: ["stats", "solved", "badge"],
-  topcoder: ["stats", "badge"],
-  codewars: ["stats", "solved", "badge"],
-  dmoj: ["stats", "rating", "badge"],
-  spoj: ["stats", "badge"],
-  kattis: ["stats", "badge"],
-  uva: ["stats", "heatmap", "streak", "badge"],
-  cses: ["stats", "badge"],
+  codeforces: ["stats", "rating", "solved", "heatmap", "streak", "contests", "trophies", "badge"],
+  leetcode: ["stats", "rating", "solved", "heatmap", "streak", "contests", "trophies", "badge"],
+  atcoder: ["stats", "rating", "heatmap", "streak", "contests", "trophies", "badge"],
+  codechef: ["stats", "rating", "heatmap", "streak", "contests", "trophies", "badge"],
+  gfg: ["stats", "solved", "trophies", "badge"],
+  hackerrank: ["stats", "solved", "trophies", "badge"],
+  topcoder: ["stats", "trophies", "badge"],
+  codewars: ["stats", "solved", "trophies", "badge"],
+  dmoj: ["stats", "rating", "trophies", "badge"],
+  spoj: ["stats", "trophies", "badge"],
+  kattis: ["stats", "trophies", "badge"],
+  uva: ["stats", "heatmap", "streak", "trophies", "badge"],
+  cses: ["stats", "trophies", "badge"],
 };
 
 export function supportedCards(platform) {

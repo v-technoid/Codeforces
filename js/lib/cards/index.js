@@ -9,6 +9,7 @@ import { TYPING_PARAMS, renderTypingCard } from "./typing.js";
 import { UPCOMING_FIELDS, UPCOMING_PARAMS, renderUpcomingCard } from "./upcoming.js";
 import { COMBINED_PARAMS, renderCombinedCard } from "./combined.js";
 import { STREAK_FIELDS, renderStreakCard } from "./streak.js";
+import { TROPHY_FIELDS, renderTrophiesCard } from "./trophies.js";
 import { BANNER_PARAMS, renderBannerCard } from "./banner.js";
 import { SOCIAL_PARAMS, renderSocialCard } from "./social.js";
 import { readParams } from "./params.js";
@@ -21,7 +22,7 @@ export { renderErrorCard } from "./stats.js";
  * needs: what data the card is drawn from
  *   "handle"       profile and rating history for a Codeforces handle
  *   "submissions"  the above plus the full submission history (slower)
- *   "upcoming"     the list of upcoming Codeforces contests
+ *   "upcoming"     upcoming contests from several platforms
  *   "multi"        profiles on several platforms at once
  *   "none"         nothing, everything comes from the link itself
  * group: where it sits in the builder
@@ -81,6 +82,16 @@ export const CARDS = [
     themed: true,
   },
   {
+    type: "trophies",
+    group: "codeforces",
+    label: "Achievements",
+    description: "Trophies from bronze to diamond for your milestones",
+    render: renderTrophiesCard,
+    needs: "submissions",
+    fields: TROPHY_FIELDS,
+    themed: true,
+  },
+  {
     type: "contests",
     group: "codeforces",
     label: "Contests",
@@ -137,7 +148,7 @@ export const CARDS = [
     type: "upcoming",
     group: "extra",
     label: "Upcoming contests",
-    description: "The next Codeforces contests with a countdown",
+    description: "Next contests on Codeforces, LeetCode, AtCoder and CodeChef",
     render: renderUpcomingCard,
     needs: "upcoming",
     fields: UPCOMING_FIELDS,
@@ -170,7 +181,7 @@ export const CARDS = [
 ];
 
 // The Codeforces cards also work for other platforms through `platform=`.
-const ANY_PLATFORM = new Set(["stats", "rating", "solved", "heatmap", "streak", "contests", "badge"]);
+const ANY_PLATFORM = new Set(["stats", "rating", "solved", "heatmap", "streak", "trophies", "contests", "badge"]);
 
 for (const card of CARDS) {
   card.params ??= [];

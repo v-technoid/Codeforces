@@ -30,6 +30,7 @@ export function handleMarkup(handle, rating, t) {
 /** Shared card shell: background, border, accent edge, base styles and animations. */
 export function frame({ options, width = CARD_WIDTH, height, accent, title, desc, css = "", body }) {
   const { theme: t, animate = true, hideBorder = false } = options;
+  const rx = options.radius ?? 10;
   const motion = animate
     ? `
     .fade { opacity: 0; animation: fade .5s ease forwards; }
@@ -56,8 +57,8 @@ export function frame({ options, width = CARD_WIDTH, height, accent, title, desc
     ${css}
     ${motion}
   </style>
-  <defs><clipPath id="card"><rect x="0.5" y="0.5" rx="10" width="${width - 1}" height="${height - 1}"/></clipPath></defs>
-  <rect x="0.5" y="0.5" rx="10" width="${width - 1}" height="${height - 1}" fill="${t.background}"${hideBorder ? "" : ` stroke="${t.border}"`}/>
+  <defs><clipPath id="card"><rect x="0.5" y="0.5" rx="${rx}" width="${width - 1}" height="${height - 1}"/></clipPath></defs>
+  <rect x="0.5" y="0.5" rx="${rx}" width="${width - 1}" height="${height - 1}" fill="${t.background}"${hideBorder ? "" : ` stroke="${t.border}"`}/>
   ${accent ? `<rect x="0" y="0" width="4" height="${height}" fill="${accent}" clip-path="url(#card)"/>` : ""}
   ${body}
 </svg>`;

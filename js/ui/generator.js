@@ -40,6 +40,7 @@ const SECTIONS = [
   { id: "solved", label: "Problems solved", group: "codeforces", on: true },
   { id: "streak", label: "Submission streak", group: "codeforces", on: true },
   { id: "heatmap", label: "Submission heatmap", group: "codeforces", on: false },
+  { id: "trophies", label: "Achievements", group: "codeforces", on: false },
   { id: "contests", label: "Recent contests", group: "codeforces", on: false },
   { id: "combined", label: "All my platforms", group: "combined", on: false },
   { id: "github", label: "GitHub contribution streak", group: "github", on: false, github: true },
@@ -48,12 +49,20 @@ const SECTIONS = [
   { id: "footer", label: "Footer wave", group: "bottom", on: false },
 ];
 
+// How the section list is folded into groups on the page.
+const UI_GROUPS = [
+  { id: "top", label: "Top of your README", ids: ["banner", "typing", "badge", "views"] },
+  { id: "you", label: "About you", ids: ["about", "socials"] },
+  { id: "cards", label: "Platform cards", ids: ["stats", "rating", "solved", "streak", "trophies", "heatmap", "contests"] },
+  { id: "more", label: "More sections", ids: ["combined", "github", "stack", "upcoming", "footer"] },
+];
+
 // One click starting points. Anything not listed is switched off.
 const PRESETS = {
   minimal: { label: "Minimal", on: ["typing", "badge", "stats", "stack"] },
   cp: {
     label: "Competitive programmer",
-    on: ["banner", "badge", "stats", "rating", "solved", "streak", "contests", "combined", "upcoming"],
+    on: ["banner", "badge", "stats", "rating", "solved", "streak", "trophies", "contests", "combined", "upcoming"],
   },
   all: { label: "Everything", on: SECTIONS.map((s) => s.id) },
 };
@@ -234,7 +243,7 @@ function itemHtml(item, width, indent) {
     light,
     dark,
     alt: cardAlt(item.type, handle, item.params, state.platform),
-    href: item.href ?? cardLink(item.type, handle, state.platform),
+    href: item.href ?? cardLink(item.type, handle, state.platform, item.params),
     width,
     indent,
   });
@@ -377,13 +386,19 @@ export function setupGenerator() {
     soon();
   });
 
-  $("gen-sections").innerHTML = SECTIONS.map((s) => {
+  const sectionHtml = (s) => {
     const extra = extraHtml(s.id);
     return `<div class="gen-section" data-id="${s.id}">
       <label class="check"><input type="checkbox" data-section="${s.id}"${g.on[s.id] ? " checked" : ""} /><span>${s.label}</span></label>
       ${extra ? `<div class="gen-extra" id="gen-extra-${s.id}"${g.on[s.id] ? "" : " hidden"}>${extra}</div>` : ""}
     </div>`;
-  }).join("");
+  };
+  $("gen-sections").innerHTML = UI_GROUPS.map(
+    (grp, i) => `<details class="gen-group" data-group="${grp.id}"${i === 0 ? " open" : ""}>
+      <summary><span>${grp.label}</span><span class="gen-count" data-count="${grp.id}"></span></summary>
+      <div class="gen-group-body">${grp.ids.map((id) => sectionHtml(SECTIONS.find((x) => x.id === id))).join("")}</div>
+    </details>`,
+  ).join("");
 
   $("gen-banner-title").addEventListener("input", (e) => {
     g.bannerTitle = e.target.value.trim() ? e.target.value.slice(0, 40) : null;
@@ -489,6 +504,15 @@ export function renderGenerator() {
   for (const s of SECTIONS.filter((x) => x.group === "codeforces")) {
     document.querySelector(`#gen-sections [data-id="${s.id}"]`).hidden = !allowed.has(s.id);
   }
+  // "3 of 4 on" next to each folded group.
+  for (const grp of UI_GROUPS) {
+    const visible = grp.ids.filter((id) => !document.querySelector(`#gen-sections [data-id="${id}"]`)?.hidden);
+    const on = visible.filter((id) => g.on[id]).length;
+    const el = document.querySelector(`[data-count="${grp.id}"]`);
+    el.textContent = `${on} of ${visible.length} on`;
+    el.classList.toggle("is-on", on > 0);
+  }
+
   const filled = combinedHandles();
   $("gen-combined-hint").textContent = filled
     ? "Uses the handles from the All platforms card."

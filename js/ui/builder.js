@@ -68,6 +68,7 @@ const b = {
   params: {},
   colors: {},
   border: true,
+  radius: 10,
   animate: true,
   embedTab: 0,
   copied: null,
@@ -80,21 +81,26 @@ function renderTypes(platform) {
   const allowed = new Set(supportedCards(platform));
   const visible = (c) => c.group !== "codeforces" || allowed.has(c.type);
   if (!visible(getCard(b.type))) b.type = "stats";
-  $("types").innerHTML = GROUPS.map(
-    (g) => `<div class="type-group">
+  $("types").innerHTML = GROUPS.map((g) => {
+    const cards = CARDS.filter((c) => c.group === g.id && visible(c));
+    // Rows fill evenly: up to six in one row, otherwise two rows, and a short
+    // last row lets its final card stretch so no gap is left at the end.
+    const cols = cards.length <= 6 ? cards.length : Math.ceil(cards.length / 2);
+    const gap = Math.ceil(cards.length / cols) * cols - cards.length;
+    return `<div class="type-group">
       <p class="type-group-label">${g.label(platform)}</p>
-      <div class="type-row" role="tablist" aria-label="${g.label(platform)}">
-        ${CARDS.filter((c) => c.group === g.id && visible(c))
+      <div class="type-row" role="tablist" aria-label="${g.label(platform)}" style="--cols:${cols}">
+        ${cards
           .map(
-            (c) => `<button type="button" role="tab" class="type" data-type="${c.type}" aria-selected="${c.type === b.type}">
+            (c, i) => `<button type="button" role="tab" class="type" data-type="${c.type}" aria-selected="${c.type === b.type}"${i === cards.length - 1 && gap ? ` style="--span:${gap + 1}"` : ""}>
               <span class="type-name">${c.label}</span>
               <span class="type-desc">${c.group === "codeforces" && platform.id !== "codeforces" ? c.description.replace(/Codeforces /g, "") : c.description}</span>
             </button>`,
           )
           .join("")}
       </div>
-    </div>`,
-  ).join("");
+    </div>`;
+  }).join("");
   b.typesFor = platform.id;
 }
 
@@ -139,7 +145,8 @@ export function setupBuilder() {
 
   $("fields").addEventListener("change", (e) => {
     const input = e.target;
-    if (input.dataset.field === "__border") b.border = input.checked;
+    if (input.dataset.field === "__radius") b.radius = Number(input.value);
+    else if (input.dataset.field === "__border") b.border = input.checked;
     else if (input.dataset.field === "__animate") b.animate = input.checked;
     else {
       const cur = b.hidden[b.type] ?? [];
@@ -324,12 +331,23 @@ export function renderBuilder() {
     { id: "__animate", label: "Animation", checked: b.animate },
   ];
   $("fields-group").hidden = card.type === "badge";
-  $("fields").innerHTML = fieldRows
-    .map(
-      (f) =>
-        `<label class="check"><input type="checkbox" data-field="${f.id}"${f.checked ? " checked" : ""} /><span>${f.label}</span></label>`,
-    )
-    .join("");
+  const corners = [
+    [0, "Square"],
+    [10, "Rounded"],
+    [18, "Extra round"],
+  ];
+  $("fields").innerHTML =
+    fieldRows
+      .map(
+        (f) =>
+          `<label class="check"><input type="checkbox" data-field="${f.id}"${f.checked ? " checked" : ""} /><span>${f.label}</span></label>`,
+      )
+      .join("") +
+    (card.themed
+      ? `<label class="corners"><span>Corners</span><select class="input select" data-field="__radius">${corners
+          .map(([v, l]) => `<option value="${v}"${v === b.radius ? " selected" : ""}>${l}</option>`)
+          .join("")}</select></label>`
+      : "");
   $("colors-details").hidden = !card.themed;
 
   // Color pickers start from the colors the card actually uses.
@@ -349,6 +367,7 @@ export function renderBuilder() {
       hide: new Set(hide),
       hideBorder: !b.border,
       animate: b.animate,
+      radius: b.radius,
       params,
       now: new Date(),
     };
@@ -394,10 +413,11 @@ export function renderBuilder() {
     colors: b.colors,
     hideBorder: !b.border,
     animate: b.animate,
+    radius: b.radius,
     params,
   };
   const { light, dark } = cardUrls(config, useAuto ? b.darkTheme : null);
-  const href = cardLink(b.type, handle, platform.id);
+  const href = cardLink(b.type, handle, platform.id, params);
   const center = b.type === "typing";
 
   const html = imageHtml({ light, dark, alt, href });
@@ -419,7 +439,7 @@ export function renderBuilder() {
           hint: center
             ? "Paste this at the top of your profile README. It's centered, like a headline."
             : href
-              ? "Paste this into your profile README. The card links to your Codeforces page."
+              ? `Paste this into your profile README. The card links to ${card.needsHandle ? `your ${platform.name} profile` : "the contest list"}.`
               : "Paste this into your profile README.",
         },
         {

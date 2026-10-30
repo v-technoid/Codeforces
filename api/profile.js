@@ -1,5 +1,6 @@
 // Platform stats as JSON, used by the page for live previews.
 //   /api/profile?platform=leetcode&username=neal_wu
+//   /api/profile?platform=atcoder&username=tourist&full=1   (with daily activity)
 //   /api/profile?codeforces=tourist&leetcode=neal_wu      (several at once)
 import { fetchMany, getPlatform, PlatformError, PLATFORMS } from "../js/lib/platforms/index.js";
 
@@ -25,7 +26,7 @@ export default async function handler(req, res) {
   if (!username) return json(400, { error: `Enter your ${platform.name} handle` });
 
   try {
-    const stats = await platform.fetch(username);
+    const stats = await platform.fetch(username, { submissions: first(query.full) === "1" });
     res.setHeader("Cache-Control", "public, max-age=600, s-maxage=1800, stale-while-revalidate=86400");
     return json(200, { stats });
   } catch (err) {
