@@ -27,7 +27,10 @@ function setupHeader() {
     // Reset the distance whenever the direction changes.
     travel = Math.sign(delta) === Math.sign(travel) ? travel + delta : delta;
     const nearTop = y < 120;
-    const keep = nearTop || header.contains(document.activeElement);
+    // Stay put only while someone is moving through the header with the keyboard.
+    // A mouse click (like the theme switch) leaves focus on the button, but
+    // that shouldn't pin the header in place.
+    const keep = nearTop || keyboardInside();
     if (keep) header.classList.remove("is-hidden");
     else if (travel > HIDE_AFTER) header.classList.add("is-hidden");
     else if (travel < -SHOW_AFTER) header.classList.remove("is-hidden");
@@ -43,8 +46,19 @@ function setupHeader() {
     },
     { passive: true },
   );
+  const keyboardInside = () => {
+    const el = document.activeElement;
+    if (!el || !header.contains(el)) return false;
+    try {
+      return el.matches(":focus-visible");
+    } catch {
+      return false;
+    }
+  };
   // Tabbing into the header brings it back.
-  header.addEventListener("focusin", () => header.classList.remove("is-hidden"));
+  header.addEventListener("focusin", () => {
+    if (keyboardInside()) header.classList.remove("is-hidden");
+  });
   update();
 }
 
@@ -108,8 +122,75 @@ function setupReveal() {
   }
 }
 
+/**
+ * A burst of little glints around the star buttons when the pointer reaches them:
+ * "Star on GitHub" in the header, "Star the repo" in the open source band and the
+ * GitHub link in the footer. Drawn on a fixed layer above the page, then removed.
+ */
+function setupSparkles() {
+  if (reduceMotion.matches || !Element.prototype.animate) return;
+  // White glints vanish on the light page, so light mode uses deeper golds and violets.
+  const DARK_COLORS = ["#ffd54a", "#ffffff", "#f5c04a", "#c9b8ff", "#8f80ff", "#ff9bd2"];
+  const LIGHT_COLORS = ["#f2b200", "#7a5cff", "#e0a400", "#b847f2", "#ff7ab8", "#0eadc4"];
+  const layer = document.createElement("div");
+  layer.className = "sparkle-layer";
+  layer.setAttribute("aria-hidden", "true");
+  document.body.append(layer);
+
+  const burst = (el) => {
+    const r = el.getBoundingClientRect();
+    const count = 16;
+    // Buttons on the purple band always get the bright set.
+    const onDark = document.documentElement.dataset.theme === "dark" || el.closest(".star-band");
+    const COLORS = onDark ? DARK_COLORS : LIGHT_COLORS;
+    for (let i = 0; i < count; i++) {
+      const spark = document.createElement("span");
+      spark.className = i % 3 === 0 ? "sparkle sparkle-dot" : "sparkle";
+      const size = 9 + Math.random() * 10;
+      // Start on the button's edge, spread evenly around it with a little jitter.
+      const angle = (i / count) * Math.PI * 2 + Math.random() * 0.5;
+      const x0 = r.left + r.width / 2 + Math.cos(angle) * (r.width / 2) * 0.9;
+      const y0 = r.top + r.height / 2 + Math.sin(angle) * (r.height / 2) * 0.9;
+      const dist = 22 + Math.random() * 30;
+      spark.style.cssText = `left:${x0}px;top:${y0}px;width:${size}px;height:${size}px;color:${COLORS[i % COLORS.length]}`;
+      layer.append(spark);
+      const dx = Math.cos(angle) * dist;
+      const dy = Math.sin(angle) * dist - 6;
+      spark
+        .animate(
+          [
+            { transform: "translate(-50%, -50%) scale(0) rotate(0deg)", opacity: 1 },
+            { transform: `translate(calc(-50% + ${dx * 0.6}px), calc(-50% + ${dy * 0.6}px)) scale(1.15) rotate(90deg)`, opacity: 1, offset: 0.45 },
+            { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy + 8}px)) scale(0) rotate(180deg)`, opacity: 0 },
+          ],
+          { duration: 850 + Math.random() * 400, easing: "cubic-bezier(.2,.8,.3,1)", delay: Math.random() * 90 },
+        )
+        .finished.then(() => spark.remove(), () => spark.remove());
+    }
+  };
+
+  const last = new WeakMap();
+  const targets = document.querySelectorAll(".gh-button, .star-big, .footer-gh");
+  for (const el of targets) {
+    el.addEventListener("pointerenter", () => {
+      // At most one burst every so often per button, so moving back and forth stays calm.
+      const now = performance.now();
+      if (now - (last.get(el) ?? 0) < 700) return;
+      last.set(el, now);
+      burst(el);
+      el.classList.remove("is-glitter");
+      void el.offsetWidth;
+      el.classList.add("is-glitter");
+    });
+    el.addEventListener("animationend", (e) => {
+      if (e.animationName === "glitter-glow") el.classList.remove("is-glitter");
+    });
+  }
+}
+
 export function setupChrome() {
   setupHeader();
   setupStarShine();
   setupReveal();
+  setupSparkles();
 }

@@ -298,7 +298,11 @@ function previewImg(item, width) {
     now: new Date(),
   };
   const svg = other ? renderPlatformCard(item.type, state.platform, data, options) : card.render(data, options);
-  return `<img src="${toDataUri(svg)}" alt="${esc(cardAlt(item.type, handleOrPlaceholder(), item.params, state.platform))}"${style} />`;
+  // The card's own size as attributes, so every browser (Safari included) keeps
+  // its proportions when it's shrunk to fit a phone.
+  const size = /^<svg[^>]*?\swidth="([\d.]+)"[^>]*?\sheight="([\d.]+)"/.exec(svg);
+  const dims = size ? ` width="${Math.round(size[1])}" height="${Math.round(size[2])}"` : "";
+  return `<img src="${toDataUri(svg)}"${dims} alt="${esc(cardAlt(item.type, handleOrPlaceholder(), item.params, state.platform))}"${style} />`;
 }
 
 function toPreview(blocks) {

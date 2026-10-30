@@ -66,7 +66,7 @@ README extras, which don't need `platform` or `username`:
 
 ```md
 ![All my platforms](https://coderstatscard.vercel.app/api/card?type=combined&codeforces=YOU&leetcode=YOU&atcoder=YOU)
-![Intro](https://coderstatscard.vercel.app/api/card?type=typing&lines=Hi,+I'm+Vishnu;Competitive+programmer;I+love+DP)
+![Intro](https://coderstatscard.vercel.app/api/card?type=typing&lines=Hi,+I'm+Alex;Competitive+programmer;I+love+DP)
 ```
 
 GitHub shows README images without running any scripts, so every animation here is built into the SVG image itself with CSS and SVG animation tags. That's why they play on GitHub.
@@ -199,4 +199,4 @@ Issues and pull requests are welcome.
 * **Add a theme:** add an entry to `js/lib/themes.js`.
 * **Add a card:** add a file in `js/lib/cards/` and register it in `js/lib/cards/index.js`. It appears in the builder automatically, including inputs for any `params` it declares.
 
-© Vishnuppriyan PL. Not affiliated with GitHub or any of the coding platforms listed.
+Coder Stats Card is not affiliated with GitHub or any of the coding platforms listed.

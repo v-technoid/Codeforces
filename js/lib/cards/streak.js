@@ -54,8 +54,10 @@ function range(s, run) {
   return `${dayLabel(s.startMs, run.start)} to ${dayLabel(s.startMs, run.end)}`;
 }
 
-// A small flame, drawn around (0, 0) at the bottom center.
-const FLAME = "M0 0c-7.5 0-12-5.2-12-11.4 0-5.6 3.7-9.3 6.4-13.1 1.6-2.3 2.6-4.9 2.5-7.9 4.6 2.6 7.6 6.6 8 11.8 1.5-1.4 2.4-3.4 2.6-5.6 3.2 3.3 4.5 7.6 4.5 11.3C12-5.6 7.5 0 0 0Z";
+// A symmetric flame centered on (0, 0): an outer teardrop with a smaller one
+// cut out of its base, so it reads as a flame even at this size.
+const FLAME_OUTER = "M0 -10.5C1.2 -6.8 7 -4 7 2C7 6 4 9 0 9C-4 9 -7 6 -7 2C-7 -4 -1.2 -6.8 0 -10.5Z";
+const FLAME_INNER = "M0 0.5C1.8 2.4 3 3.6 3 5.2C3 6.9 1.7 8 0 8C-1.7 8 -3 6.9 -3 5.2C-3 3.6 -1.8 2.4 0 0.5Z";
 
 export function renderStreakCard(stats, options) {
   const { theme: t, animate = true } = options;
@@ -97,7 +99,13 @@ export function renderStreakCard(stats, options) {
     const center = `<g transform="translate(${cx}, ${cy})">
     <circle r="${r}" stroke="${t.track}" stroke-width="6"/>
     ${lit ? `<circle class="sring" r="${r}" stroke="${color}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${circ.toFixed(2)}" stroke-dashoffset="${(animate ? circ : offset).toFixed(2)}" transform="rotate(-90)"/>` : ""}
-    <g transform="translate(0, ${-r + 4})"><g class="${lit && animate ? "flame" : ""}"><path d="${FLAME}" fill="${lit ? color : t.track}" stroke="${t.background}" stroke-width="3" paint-order="stroke"/></g></g>
+    <g transform="translate(0, ${-r})">
+      <circle r="15" fill="${lit ? color : t.track}" stroke="${t.background === "rgba(0,0,0,0)" ? "none" : t.background}" stroke-width="4"/>
+      <g class="${lit && animate ? "flame" : ""}">
+        <path d="${FLAME_OUTER}" fill="${lit ? "#fff" : t.muted}"/>
+        <path d="${FLAME_INNER}" fill="${lit ? color : t.track}"/>
+      </g>
+    </g>
     <text class="cur" y="12" text-anchor="middle" fill="${lit ? color : t.muted}">${fmt(s.current.length)}</text>
   </g>
   <g class="fade" style="animation-delay:220ms" text-anchor="middle" transform="translate(${cx}, 0)">
@@ -108,8 +116,8 @@ export function renderStreakCard(stats, options) {
     animate && lit
       ? `.sring { animation: sring 1.2s cubic-bezier(.4,0,.2,1) .2s forwards; }
     @keyframes sring { to { stroke-dashoffset: ${offset.toFixed(2)}; } }
-    .flame { transform-box: fill-box; transform-origin: 50% 100%; animation: flicker 1.6s ease-in-out infinite; }
-    @keyframes flicker { 0%,100% { transform: scale(1, 1) rotate(0deg); } 30% { transform: scale(.94, 1.08) rotate(-3deg); } 60% { transform: scale(1.05, .95) rotate(2deg); } }
+    .flame { transform-box: fill-box; transform-origin: 50% 90%; animation: flicker 1.6s ease-in-out infinite; }
+    @keyframes flicker { 0%,100% { transform: scale(1, 1); } 35% { transform: scale(.93, 1.1); } 65% { transform: scale(1.05, .95); } }
     @media (prefers-reduced-motion: reduce) { .sring, .flame { animation: none !important; stroke-dashoffset: ${offset.toFixed(2)}; } }`
       : ""
   }</style>`;
